@@ -6,7 +6,7 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write .",
-    "check-types": "turbo run check-types"
+    "check": "turbo run check"
   },
   "devDependencies": {
     "prettier": "^3.6.0",
