@@ -9,7 +9,7 @@ import type {
 import { formPath, uniqueId, validate } from './form-utils.js';
 import type { RemoteForm, SubmitFunction } from '@sveltejs/kit';
 import { ENHANCED_FLAG } from './form-constants.js';
-import {  ToastService } from './toast.svelte.js';
+import { ToastService } from './toast.svelte.js';
 import { dev } from '$app/environment';
 import { goto } from '$app/navigation';
 

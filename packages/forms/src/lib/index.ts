@@ -42,6 +42,3 @@ export type {
   ToastMessageConfig,
   ToastMessageService
 } from './toast.shared.js';
-
-// Svelte components
-export { default as ToastDisplay } from './ToastDisplay.svelte';

@@ -1,8 +1,7 @@
 <script lang="ts">
   import '../app.css';
   import favicon from '$lib/assets/favicon.svg';
-  import { ToastDisplay } from '@skimpleton/forms';
-
+  import Toast from '$lib/ui/toast/Toast.svelte';
   let { children } = $props();
 </script>
 
@@ -12,4 +11,4 @@
 
 {@render children?.()}
 
-<ToastDisplay />
+<Toast />
