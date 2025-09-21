@@ -3,6 +3,7 @@ import * as arctic from 'arctic';
 import { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } from '$env/static/private';
 import { error } from 'console';
 import { resolve } from '$app/paths';
+import { redirect } from '@sveltejs/kit';
 export const GET = async (event: RequestEvent) => {
   const code = event.url.searchParams.get('code');
   const state = event.url.searchParams.get('state');
@@ -14,28 +15,29 @@ export const GET = async (event: RequestEvent) => {
     throw error(400, 'Invalid request');
   }
 
-  const redirectURI = new URL(resolve('/auth/github'), event.url.origin)
+  const redirectURI = 'https://skimpleton-web.vercel.app/auth/github';
   const github = new arctic.GitHub(
     GITHUB_CLIENT_ID,
     GITHUB_CLIENT_SECRET,
-    redirectURI.href
+    redirectURI
   );
 
   let tokens: arctic.OAuth2Tokens | undefined = undefined;
   try {
     tokens = await github.validateAuthorizationCode(code);
-    
   } catch (e) {
     if (e instanceof arctic.OAuth2RequestError) {
       // Invalid authorization code, credentials, or redirect URI
-      throw error(400, 'Invalid authorization code, credentials, or redirect URI');
+      throw error(
+        400,
+        'Invalid authorization code, credentials, or redirect URI'
+      );
       // ...
     }
     if (e instanceof arctic.ArcticFetchError) {
       // Failed to call `fetch()`
       throw error(500, 'Failed to call `fetch()`');
     }
-    
   }
   if (!tokens) {
     throw error(500, 'Failed to validate authorization code');
@@ -43,8 +45,7 @@ export const GET = async (event: RequestEvent) => {
 
   const accessToken = tokens.accessToken();
 
-
-  const response = await fetch("https://api.github.com/user", {
+  const response = await fetch('https://api.github.com/user', {
     headers: {
       Authorization: `Bearer ${accessToken}`
     }
@@ -53,6 +54,6 @@ export const GET = async (event: RequestEvent) => {
     throw error(500, 'Failed to fetch user');
   }
   const user = await response.json();
-  return user;
-  
+  console.log(user);
+  throw redirect(302, '/');
 };

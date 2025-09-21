@@ -6,11 +6,11 @@ import { redirect } from '@sveltejs/kit';
 
 export const POST = async (event: RequestEvent) => {
   const state = arctic.generateState();
-  const redirectURI = new URL(resolve('/auth/github'), event.url.origin)
+  const redirectURI = 'https://skimpleton-web.vercel.app/auth/github'
   const github = new arctic.GitHub(
     GITHUB_CLIENT_ID,
     GITHUB_CLIENT_SECRET,
-    redirectURI.href
+    redirectURI
   );
   event.cookies.set('state', state, {
     secure: true,
