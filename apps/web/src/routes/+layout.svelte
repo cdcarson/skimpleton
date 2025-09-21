@@ -9,6 +9,9 @@
   <link rel="icon" href={favicon} />
 </svelte:head>
 
+<form method="post" action="/auth">
+  <button class="button" type="submit">Login</button>
+</form>
 {@render children?.()}
 
 <Toast />
