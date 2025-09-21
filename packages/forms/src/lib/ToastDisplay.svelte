@@ -88,7 +88,7 @@
   let messagesWithIds = $derived(
     messageService.mostRecent.map((message) => ({
       ...message,
-      _id: `app-message-${Math.random().toString(36).substring(2, 8)}`
+      _id: `toast-${Math.random().toString(36).substring(2, 8)}`
     }))
   );
 
