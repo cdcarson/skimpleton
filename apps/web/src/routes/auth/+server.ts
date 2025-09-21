@@ -16,6 +16,7 @@ export const POST = async (event: RequestEvent) => {
     secure: true,
     path: '/',
     httpOnly: true,
+    sameSite: 'lax',
     maxAge: 60 * 10 // 10 min
   });
   throw redirect(302, github.createAuthorizationURL(state, ['read:user']));
