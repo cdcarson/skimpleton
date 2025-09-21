@@ -3,3 +3,15 @@
 @plugin '@iconify/tailwind4';
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@import './lib/ui/controls.css';
+
+@layer base {
+  body {
+    @apply bg-white text-gray-900 dark:bg-gray-600 dark:text-gray-100;
+  }
+  [popover] {
+    @apply text-gray-900 dark:text-gray-100;
+  }
+}
+
