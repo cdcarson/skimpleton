@@ -19,7 +19,7 @@
     <div class="space-y-1">
       <label for={form.field('name').id}>Your Name</label>
       <input
-        {...form.field('name').attributes()}
+        {...form.field('name').attributes({ as: 'text' })}
         class="control"
         autocomplete="name"
       />
@@ -27,7 +27,7 @@
     <div class="space-y-1">
       <label for={form.field('email').id}>Email</label>
       <input
-        {...form.field('email').attributes({ type: 'email' })}
+        {...form.field('email').attributes({ as: 'email' })}
         class="control"
         autocomplete="email"
       />
@@ -35,7 +35,7 @@
     <div>
       <label for={form.field('bio').id}>Bio</label>
       <textarea
-        {...form.field('bio').attributes({ element: 'textarea' })}
+        {...form.field('bio').attributes({ as: 'textarea' })}
         class="control"
         rows="5"
       ></textarea>

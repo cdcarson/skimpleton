@@ -57,13 +57,18 @@ export const getFormFieldDefinitions = <T extends FormShape>(
       const newName = [currentPath, key]
         .filter((p) => p.trim().length > 0)
         .join('.') as FormName<T>;
-      let unwrapped = unwrapZodType(fieldSchema);
+      const unwrapped = unwrapZodType(fieldSchema);
       if (unwrapped instanceof z.ZodArray) {
-        unwrapped = unwrapZodType(unwrapped.element);
+        const element = unwrapZodType(unwrapped.element);
+        const options =
+          element instanceof z.ZodEnum
+            ? (element.options as readonly string[])
+            : undefined;
         currentDefs.push({
           name: newName,
           isArray: true,
-          castType: getScalarCastType(unwrapped)
+          castType: getScalarCastType(element),
+          ...(options && { options })
         });
         continue;
       }
@@ -75,10 +80,15 @@ export const getFormFieldDefinitions = <T extends FormShape>(
       }
 
       // leaf field
+      const leafOptions =
+        unwrapped instanceof z.ZodEnum
+          ? (unwrapped.options as readonly string[])
+          : undefined;
       currentDefs.push({
         name: newName,
         castType: getScalarCastType(unwrapped),
-        isArray: false
+        isArray: false,
+        ...(leafOptions && { options: leafOptions })
       });
     }
     return currentDefs;

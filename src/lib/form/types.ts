@@ -30,6 +30,7 @@ export type FormFieldDefinition<
   name: FormName<T>;
   castType: CastType;
   isArray: IsArray;
+  options?: readonly string[];
 };
 
 export type FieldTypeAt<

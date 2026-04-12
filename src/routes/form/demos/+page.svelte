@@ -27,8 +27,26 @@
     <li>
       <a href={resolve('/form/demos/boolean')}>Boolean Field</a>
     </li>
+     <li>
+      <a href={resolve('/form/demos/checkbox-group')}>Checkboxes</a>
+    </li>
+     <li>
+      <a href={resolve('/form/demos/radio-group')}>Radios</a>
+    </li>
     <li>
       <a href={resolve('/form/demos/file')}>File Field</a>
+    </li>
+    <li>
+      <a href={resolve('/form/demos/number')}>Number</a>
+    </li>
+    <li>
+      <a href={resolve('/form/demos/number-range')}>Number Range</a>
+    </li>
+    <li>
+      <a href={resolve('/form/demos/bigint')}>BigInt</a>
+    </li>
+    <li>
+      <a href={resolve('/form/demos/bigint-range')}>BigInt Range</a>
     </li>
   </ul>
 </Route>

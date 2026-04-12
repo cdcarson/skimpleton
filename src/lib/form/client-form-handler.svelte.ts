@@ -20,14 +20,22 @@ import {
 import type { HTMLFormAttributes } from 'svelte/elements';
 // import { createAttachmentKey, type Attachment } from 'svelte/attachments';
 
+type Definite<T> = Exclude<T, undefined | null>;
+
 type FieldFor<T extends FormShape, N extends FormName<T>> =
-  FieldTypeAt<T, N> extends File | File[]
-    ? FileField<T, FieldTypeAt<T, N> extends File[] ? true : false>
-    : FieldTypeAt<T, N> extends boolean
+  Definite<FieldTypeAt<T, N>> extends File | File[]
+    ? FileField<T, Definite<FieldTypeAt<T, N>> extends File[] ? true : false>
+    : Definite<FieldTypeAt<T, N>> extends boolean
       ? BooleanField<T>
-      : FieldTypeAt<T, N> extends string
-        ? StringField<T>
-        : Field<T>;
+      : Definite<FieldTypeAt<T, N>> extends number | bigint
+        ? NumericField<T>
+        : Definite<FieldTypeAt<T, N>> extends string[]
+          ? MultipleChoiceField<T>
+          : Definite<FieldTypeAt<T, N>> extends string
+            ? string extends Definite<FieldTypeAt<T, N>>
+              ? StringField<T>
+              : SingleChoiceField<T>
+            : Field<T>;
 
 export class ClientFormHandler<
   T extends FormShape,
@@ -121,10 +129,31 @@ export class ClientFormHandler<
         definition as FormFieldDefinition<T, 'boolean', false>
       );
     }
+    if (
+      (definition.castType === 'number' || definition.castType === 'bigint') &&
+      !definition.isArray
+    ) {
+      return new NumericField(
+        this,
+        definition as FormFieldDefinition<T, 'number' | 'bigint', false>
+      );
+    }
     if (definition.castType === 'string' && !definition.isArray) {
+      if (definition.options) {
+        return new SingleChoiceField(
+          this,
+          definition as FormFieldDefinition<T, 'string', false>
+        );
+      }
       return new StringField(
         this,
         definition as FormFieldDefinition<T, 'string', false>
+      );
+    }
+    if (definition.castType === 'string' && definition.isArray) {
+      return new MultipleChoiceField(
+        this,
+        definition as FormFieldDefinition<T, 'string', true>
       );
     }
     return new Field(this, definition);
@@ -255,9 +284,126 @@ class BooleanField<T extends FormShape> extends Field<T, 'boolean', false> {
   }
 }
 
-type StringFieldOptions =
-  | { element?: 'input'; type?: string }
-  | { element: 'textarea' };
+type NumericFieldAs = 'number' | 'range';
+type NumericFieldOptions = { as: NumericFieldAs };
+
+class NumericField<T extends FormShape> extends Field<T, 'number' | 'bigint', false> {
+  constructor(
+    handler: ClientFormHandler<T>,
+    definition: FormFieldDefinition<T, 'number' | 'bigint', false>
+  ) {
+    super(handler, definition);
+  }
+  attributes(options: NumericFieldOptions) {
+    const value = (this.handler.formData.get(this.name) as string) ?? '';
+    return { name: this.name, id: this.id, type: options.as, value };
+  }
+}
+
+class SingleChoiceField<T extends FormShape> extends Field<T, 'string', false> {
+  #options: readonly string[];
+  constructor(
+    handler: ClientFormHandler<T>,
+    definition: FormFieldDefinition<T, 'string', false>
+  ) {
+    super(handler, definition);
+    if (!definition.options) {
+      throw new Error(
+        `SingleChoiceField: field "${definition.name}" must use z.enum() as its type`
+      );
+    }
+    this.#options = definition.options;
+  }
+  get options(): readonly string[] {
+    return this.#options;
+  }
+  #value(): string {
+    return (this.handler.formData.get(this.name) as string) ?? '';
+  }
+  radioAttributes(value: string) {
+    return {
+      name: this.name,
+      id: `${this.id}-${value}`,
+      type: 'radio' as const,
+      value,
+      checked: this.#value() === value
+    };
+  }
+  selectAttributes() {
+    return {
+      name: this.name,
+      id: this.id
+    };
+  }
+  optionAttributes(value: string) {
+    return {
+      value,
+      selected: this.#value() === value
+    };
+  }
+}
+
+type StringFieldAs =
+  | 'text'
+  | 'email'
+  | 'password'
+  | 'search'
+  | 'tel'
+  | 'url'
+  | 'date'
+  | 'time'
+  | 'datetime-local'
+  | 'month'
+  | 'week'
+  | 'color'
+  | 'hidden'
+  | 'textarea';
+
+type StringFieldOptions = { as: StringFieldAs };
+
+class MultipleChoiceField<T extends FormShape> extends Field<T, 'string', true> {
+  #options: readonly string[];
+  constructor(
+    handler: ClientFormHandler<T>,
+    definition: FormFieldDefinition<T, 'string', true>
+  ) {
+    super(handler, definition);
+    if (!definition.options) {
+      throw new Error(
+        `MultipleChoiceField: field "${definition.name}" must use z.enum() as its array element type`
+      );
+    }
+    this.#options = definition.options;
+  }
+  get options(): readonly string[] {
+    return this.#options;
+  }
+  #selected(): Set<string> {
+    return new Set(this.handler.formData.getAll(this.name) as string[]);
+  }
+  checkboxAttributes(value: string) {
+    return {
+      name: this.name,
+      id: `${this.id}-${value}`,
+      type: 'checkbox' as const,
+      value,
+      checked: this.#selected().has(value)
+    };
+  }
+  selectAttributes() {
+    return {
+      name: this.name,
+      id: this.id,
+      multiple: true as const
+    };
+  }
+  optionAttributes(value: string) {
+    return {
+      value,
+      selected: this.#selected().has(value)
+    };
+  }
+}
 
 class StringField<T extends FormShape> extends Field<T, 'string', false> {
   constructor(
@@ -266,15 +412,12 @@ class StringField<T extends FormShape> extends Field<T, 'string', false> {
   ) {
     super(handler, definition);
   }
-  attributes(options?: StringFieldOptions) {
+  attributes(options: StringFieldOptions) {
     const value = (this.handler.formData.get(this.name) as string) ?? '';
     const base = { name: this.name, id: this.id, value };
-    if (options?.element === 'textarea') {
+    if (options.as === 'textarea') {
       return base;
     }
-    return {
-      ...base,
-      type: (options as { element?: 'input'; type?: string } | undefined)?.type ?? 'text'
-    };
+    return { ...base, type: options.as };
   }
 }
