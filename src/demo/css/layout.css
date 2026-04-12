@@ -1,0 +1,25 @@
+@import 'tailwindcss';
+
+@plugin '@iconify/tailwind4';
+@plugin '@tailwindcss/typography';
+
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  :root.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply bg-white text-gray-800 dark:bg-black dark:text-gray-200;
+  }
+  [class^='icon-\[bi--'],
+  [class*=' icon-\[bi--'] {
+    vertical-align: -0.125em;
+  }
+}
+@import './controls.css';

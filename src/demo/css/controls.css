@@ -1,0 +1,127 @@
+/** Buttons **/
+@layer components {
+  /* styled buttons */
+  .button {
+    --border-light: var(--color-gray-300);
+    --border-dark: var(--color-gray-700);
+    --bg-light: var(--color-gray-100);
+    --bg-dark: var(--color-gray-900);
+    --text-light: var(--color-gray-700);
+    --text-dark: var(--color-gray-300);
+
+    --border-hover-light: var(--color-gray-300);
+    --border-hover-dark: var(--color-gray-700);
+    --bg-hover-light: var(--color-gray-200);
+    --bg-hover-dark: var(--color-gray-800);
+    --text-hover-light: var(--color-gray-800);
+    --text-hover-dark: var(--color-gray-200);
+
+    --border-active-light: var(--color-gray-500);
+    --border-active-dark: var(--color-gray-500);
+    --bg-active-light: var(--color-gray-300);
+    --bg-active-dark: var(--color-gray-700);
+    --text-active-light: var(--color-gray-900);
+    --text-active-dark: var(--color-gray-100);
+
+    --ring-light: color-mix(in srgb, var(--color-blue-500) 50%, transparent);
+    --ring-dark: color-mix(in srgb, var(--color-blue-300) 50%, transparent);
+
+    @apply inline-flex min-h-[calc(2px+2.5em)] items-center justify-center gap-x-[.75em] rounded-[.25em] border border-(--border-light) bg-(--bg-light) bg-clip-border px-[.75em] py-[.5em] text-base leading-normal font-medium text-(--text-light) no-underline ring-(--ring-light) transition-all outline-none hover:border-(--border-hover-light) hover:bg-(--bg-hover-light) hover:text-(--text-hover-light) focus-visible:ring-4 disabled:pointer-events-none disabled:opacity-50 dark:border-(--border-dark) dark:bg-(--bg-dark) dark:text-(--text-dark) dark:ring-(--ring-light) dark:hover:border-(--border-hover-dark) dark:hover:bg-(--bg-hover-dark) dark:hover:text-(--text-hover-dark) [&.active]:border-(--border-active-light) [&.active]:bg-(--bg-active-light) [&.active]:text-(--text-active-light) dark:[&.active]:border-(--border-active-dark) dark:[&.active]:bg-(--bg-active-dark) dark:[&.active]:text-(--text-active-dark) [&.lg]:text-lg [&.md]:text-base [&.sm]:text-sm [&.xl]:text-xl [&.xs]:text-xs;
+  }
+  .button.primary {
+    --border-light: transparent;
+    --border-dark: transparent;
+    --bg-light: var(--color-blue-600);
+    --bg-dark: var(--color-blue-600);
+    --text-light: var(--color-white);
+    --text-dark: var(--color-white);
+
+    --border-hover-light: transparent;
+    --border-hover-dark: transparent;
+    --bg-hover-light: var(--color-blue-700);
+    --bg-hover-dark: var(--color-blue-700);
+    --text-hover-light: var(--color-white);
+    --text-hover-dark: var(--color-white);
+
+    --border-active-light: transparent;
+    --border-active-dark: transparent;
+    --bg-active-light: var(--color-blue-800);
+    --bg-active-dark: var(--color-blue-800);
+    --text-active-light: var(--color-white);
+    --text-active-dark: var(--color-white);
+  }
+
+  .button.destructive {
+    --border-light: transparent;
+    --border-dark: transparent;
+    --bg-light: var(--color-red-600);
+    --bg-dark: var(--color-red-600);
+    --text-light: var(--color-white);
+    --text-dark: var(--color-white);
+
+    --border-hover-light: transparent;
+    --border-hover-dark: transparent;
+    --bg-hover-light: var(--color-red-700);
+    --bg-hover-dark: var(--color-red-700);
+    --text-hover-light: var(--color-white);
+    --text-hover-dark: var(--color-white);
+
+    --border-active-light: transparent;
+    --border-active-dark: transparent;
+    --bg-active-light: var(--color-red-800);
+    --bg-active-dark: var(--color-red-800);
+    --text-active-light: var(--color-white);
+    --text-active-dark: var(--color-white);
+  }
+
+  button.link,
+  a.link {
+    @apply text-blue-600 hover:underline dark:text-blue-400;
+  }
+
+  label.control-label {
+    @apply block text-sm leading-snug font-semibold;
+  }
+
+  .control-error {
+    @apply text-sm leading-snug text-red-700 dark:text-red-300;
+  }
+
+  .control-help {
+    @apply text-sm leading-snug text-gray-600 dark:text-gray-400;
+  }
+}
+
+/** .control inputs **/
+@layer components {
+  input.control,
+  select.control,
+  textarea.control {
+    @apply block min-h-[calc(2px+2.5em)] w-full appearance-none rounded-[.25em] border border-gray-300 bg-white! bg-clip-border px-[.75em] py-[.5em] text-base leading-normal text-gray-700 ring-blue-500/50 transition-all outline-none read-only:bg-gray-100 focus-visible:ring-4 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-500 dark:bg-black! dark:text-gray-300 dark:read-only:bg-gray-900 [&.invalid]:border-red-500 [&.invalid]:ring-red-500/50 [&.lg]:text-lg [&.md]:text-base [&.sm]:text-sm [&.xl]:text-xl [&.xs]:text-xs;
+  }
+
+  /* Select dropdown caret styling (single select only) */
+  select.control:not([multiple]) {
+    --caret-light: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none"%3E%3Cpath d="M6 8l4 4 4-4" stroke="%23374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/%3E%3C/svg%3E');
+    --caret-dark: url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none"%3E%3Cpath d="M6 8l4 4 4-4" stroke="%23d1d5db" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/%3E%3C/svg%3E');
+    @apply bg-(image:--caret-light) bg-size-[1.5em_1.5em] bg-position-[right_0.5em_center] bg-no-repeat pr-[2.5em] dark:bg-(image:--caret-dark);
+  }
+
+  /* File input button styling */
+  input[type='file'].control {
+    @apply p-0 file:mr-[.75em] file:cursor-pointer file:rounded-l-[.25em] file:border-0 file:border-r file:border-gray-300 file:bg-gray-100 file:px-[.75em] file:py-[.5em] file:font-medium file:text-gray-700 file:transition-colors file:hover:bg-gray-200 dark:file:border-gray-600 dark:file:bg-gray-800 dark:file:text-gray-300 dark:file:hover:bg-gray-700;
+  }
+}
+
+/** Checkboxes and radios **/
+@layer components {
+  label.radio,
+  label.check,
+  label.switch {
+    @apply flex cursor-pointer gap-x-[.375em] text-base leading-normal has-disabled:pointer-events-none has-disabled:opacity-50 [&.lg]:text-lg [&.md]:text-base [&.sm]:text-sm [&.xl]:text-xl [&.xs]:text-xs;
+  }
+
+  label.switch > input[type='checkbox'] {
+    @apply relative inline-block aspect-5/3 h-[calc(2px+1.5em)] appearance-none rounded-[.25em] border border-gray-300 bg-clip-border ring-blue-500/50 transition-all duration-500 outline-none after:absolute after:top-[.25em] after:left-[.25em] after:aspect-square after:h-[1em] after:rounded-[.25em] after:bg-gray-300 after:transition-all after:duration-500 after:content-[""] checked:bg-blue-500 checked:after:left-[calc(100%-1.25em)] checked:after:bg-white focus:ring-2 dark:border-gray-700 [&.invalid]:border-red-500 [&.invalid]:ring-red-500/50;
+  }
+}

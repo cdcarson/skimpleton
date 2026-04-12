@@ -1,5 +1,8 @@
 {
-	"files.associations": {
-		"*.css": "tailwindcss"
-	}
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "js/ts.preferences.autoImportFileExcludePatterns": [
+    "**/node_modules/@types/node"
+  ]
 }
