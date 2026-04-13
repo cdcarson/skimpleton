@@ -9,7 +9,8 @@ import type {
   FormShape,
   InitialFormState,
   FormSuccess,
-  FormTouched
+  FormTouched,
+  FormState
 } from './types.js';
 import {
   formDataToPojo,
@@ -18,6 +19,16 @@ import {
   pojoToFormData
 } from './utils.js';
 import type { HTMLFormAttributes } from 'svelte/elements';
+import {
+  createAttachmentKey,
+  fromAction,
+  type Attachment
+} from 'svelte/attachments';
+import { enhance } from '$app/forms';
+import type { Action } from 'svelte/action';
+import type { SubmitFunction } from '@sveltejs/kit';
+import { MessageService } from '$lib/message/message.svelte.js';
+import { goto, invalidateAll } from '$app/navigation';
 // import { createAttachmentKey, type Attachment } from 'svelte/attachments';
 
 type Definite<T> = Exclude<T, undefined | null>;
@@ -55,6 +66,8 @@ export class ClientFormHandler<
   #submitting: boolean;
   #success: FormSuccess | undefined;
   #fields: SvelteMap<FormName<T>, Field<T>>;
+  #enhanceAttachmentKey: symbol;
+  #enhanceAttachment: Attachment<HTMLFormElement>;
 
   constructor(
     schema: FormSchema<T>,
@@ -114,6 +127,74 @@ export class ClientFormHandler<
     this.#valid = $derived(Object.keys(this.#errors).length === 0);
     this.#submitting = $state(false);
     this.#success = $state(initialState?.success ?? undefined);
+
+    this.#enhanceAttachmentKey = createAttachmentKey();
+    this.#enhanceAttachment = fromAction(
+      enhance as Action<
+        HTMLFormElement,
+        SubmitFunction<FormState<T, Success>, FormState<T, Success>>
+      >,
+      () => {
+        return async (input) => {
+          const msg = MessageService.get();
+          this.touchAll();
+          if (!this.valid) {
+            // todo make configurable
+            msg.error(this.#getErrorToastMessage());
+            input.cancel();
+            return;
+          }
+
+          this.#submitting = true;
+          msg.wait('Please wait...');
+          return async (r) => {
+            if (
+              'error' === r.result.type ||
+              'redirect' === r.result.type ||
+              !r.result.data
+            ) {
+              msg.clear();
+              this.#submitting = false;
+              await r.update();
+              return;
+            }
+            const data = r.result.data;
+            if (r.result.type === 'failure') {
+              // todo set data to formData
+              // this.data = data.data;
+              this.#externalErrors = data.errors;
+              msg.error(this.#getErrorToastMessage());
+              this.#submitting = false;
+              return;
+            }
+
+            if (r.result.type === 'success' && data.success) {
+              // todo set data to formData
+              // this.data = data.data;
+              this.#success = data.success;
+
+              await invalidateAll();
+              if (data.success.isRedirect === true) {
+                // eslint-disable-next-line svelte/no-navigation-without-resolve
+                await goto(data.success.location);
+              }
+
+              msg.success(data.success.message);
+              this.#submitting = false;
+              return;
+            }
+            msg.clear();
+            this.#submitting = false;
+            await r.update();
+          };
+        };
+      }
+    );
+  }
+
+  #getErrorToastMessage(): string {
+    // todo allow the user to pass a string or function
+    return `Please correct the error${Object.keys(this.errors).length > 1 ? 's' : ''}.`;
   }
 
   #createField(definition: FormFieldDefinition<T>): Field<T> {
@@ -197,11 +278,32 @@ export class ClientFormHandler<
     return this.#fields.get(name) as FieldFor<T, N>;
   }
 
+  touchAll() {
+    this.#touched = this.#fieldDefinitions
+      .values()
+      .toArray()
+      .reduce((acc, def) => {
+        return { ...acc, [def.name]: true };
+      }, {} as FormTouched<T>);
+  }
+  untouchAll() {
+    this.#touched = {};
+  }
+  touch(path: FormName<T>) {
+    this.#touched[path] = true;
+  }
+
+  untouch(path: FormName<T>) {
+    const touched = { ...this.#touched };
+    delete touched[path];
+    this.#touched = touched;
+  }
+
   attributes(): HTMLFormAttributes {
     return {
       id: this.#formId,
       method: 'post',
-
+      [this.#enhanceAttachmentKey]: this.#enhanceAttachment,
       oninput: (event) => {
         this.#formData = new FormData(event.currentTarget);
         const name = (event.target as HTMLInputElement).name as FormName<T>;
@@ -287,7 +389,11 @@ class BooleanField<T extends FormShape> extends Field<T, 'boolean', false> {
 type NumericFieldAs = 'number' | 'range';
 type NumericFieldOptions = { as: NumericFieldAs };
 
-class NumericField<T extends FormShape> extends Field<T, 'number' | 'bigint', false> {
+class NumericField<T extends FormShape> extends Field<
+  T,
+  'number' | 'bigint',
+  false
+> {
   constructor(
     handler: ClientFormHandler<T>,
     definition: FormFieldDefinition<T, 'number' | 'bigint', false>
@@ -361,7 +467,11 @@ type StringFieldAs =
 
 type StringFieldOptions = { as: StringFieldAs };
 
-class MultipleChoiceField<T extends FormShape> extends Field<T, 'string', true> {
+class MultipleChoiceField<T extends FormShape> extends Field<
+  T,
+  'string',
+  true
+> {
   #options: readonly string[];
   constructor(
     handler: ClientFormHandler<T>,
