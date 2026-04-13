@@ -34,7 +34,6 @@ export const getFormFieldDefinitions = <T extends FormShape>(
     if (unwrapped instanceof z.ZodBoolean) return 'boolean';
     if (unwrapped instanceof z.ZodNumber) return 'number';
     if (unwrapped instanceof z.ZodBigInt) return 'bigint';
-    if (unwrapped instanceof z.ZodDate) return 'date';
     if (unwrapped instanceof z.ZodFile) return 'file';
     // string, enum, literals — all serialize as strings
     if (
@@ -167,8 +166,6 @@ export const formDataToPojo = <T extends FormShape>(
         return BigInt(s);
       case 'boolean':
         return s === 'on';
-      case 'date':
-        return new Date(s);
       default:
         return s;
     }

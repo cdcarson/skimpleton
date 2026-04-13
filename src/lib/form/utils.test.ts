@@ -104,7 +104,8 @@ describe('getFormFieldDefinitions', () => {
     expect(defs[0]).toEqual({
       name: 'faves',
       castType: 'string',
-      isArray: false
+      isArray: false,
+      options: ['red', 'green', 'blue']
     });
   });
   it('is correct for z.array(z.enum())', () => {
@@ -115,7 +116,8 @@ describe('getFormFieldDefinitions', () => {
     expect(defs[0]).toEqual({
       name: 'faves',
       castType: 'string',
-      isArray: true
+      isArray: true,
+      options: ['red', 'green', 'blue']
     });
   });
 
@@ -129,7 +131,8 @@ describe('getFormFieldDefinitions', () => {
     expect(defs[0]).toEqual({
       name: 'faves.colors',
       castType: 'string',
-      isArray: true
+      isArray: true,
+      options: ['red', 'green', 'blue']
     });
   });
 
@@ -197,7 +200,8 @@ describe('getFormFieldDefinitions', () => {
     expect(defs).toContainEqual({
       name: 'faves.color',
       castType: 'string',
-      isArray: true
+      isArray: true,
+      options: ['red', 'green', 'blue']
     });
     expect(defs).toContainEqual({
       name: 'faves.pet',

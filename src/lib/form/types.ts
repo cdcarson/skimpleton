@@ -1,6 +1,6 @@
 import z from 'zod';
 
-export type FormPrimitive = string | number | boolean | bigint | File | Date;
+export type FormPrimitive = string | number | boolean | bigint | File;
 export type FormFlatObject = Record<string, FormPrimitive | FormPrimitive[]>;
 export type FormShape = Record<
   string,
@@ -19,8 +19,7 @@ export type FormFieldCastType =
   | 'number'
   | 'bigint'
   | 'file'
-  | 'boolean'
-  | 'date';
+  | 'boolean';
 
 export type FormFieldDefinition<
   T extends FormShape,
