@@ -22,15 +22,18 @@
 >
   <ul>
     <li>
+      <a href={resolve('/form/demos/select')}>Select</a>
+    </li>
+    <li>
       <a href={resolve('/form/demos/text')}>Text Fields</a>
     </li>
     <li>
       <a href={resolve('/form/demos/boolean')}>Boolean Field</a>
     </li>
-     <li>
+    <li>
       <a href={resolve('/form/demos/checkbox-group')}>Checkboxes</a>
     </li>
-     <li>
+    <li>
       <a href={resolve('/form/demos/radio-group')}>Radios</a>
     </li>
     <li>
