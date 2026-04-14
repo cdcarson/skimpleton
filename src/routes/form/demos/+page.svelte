@@ -48,5 +48,8 @@
     <li>
       <a href={resolve('/form/demos/bigint-range')}>BigInt Range</a>
     </li>
+    <li>
+      <a href={resolve('/form/demos/kitchen-sink')}>Kitchen Sink</a>
+    </li>
   </ul>
 </Route>
