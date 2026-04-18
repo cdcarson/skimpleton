@@ -1,13 +1,13 @@
 <script lang="ts">
   import Route from '$demo/components/Route.svelte';
   import { resolve } from '$app/paths';
-    import Form from './Form.svelte';
+  import Form from './Form.svelte';
 
   let { data, form } = $props();
 </script>
 
 <Route
-  pageTitle="Text Fields"
+  pageTitle="Select"
   breadcrumbs={[
     {
       href: resolve('/'),

@@ -19,13 +19,13 @@
 <DemoFormWrapper handler={form}>
   <form {...form.attributes()} class="w-sm space-y-4">
     <div class="space-y-1">
-      <label class='block' for={form.field('state').id}>State</label>
+      <label class="block" for={form.field('state').id}>State</label>
       <select {...form.field('state').selectAttributes()} class="control">
         <option value="">Please select...</option>
         {#each US_STATE_NAMES as o (o.value)}
-          <option {...form.field('state').optionAttributes(o.value)}
-            >{o.label}</option
-          >
+          <option {...form.field('state').optionAttributes(o.value)}>
+            {o.label}
+          </option>
         {/each}
       </select>
     </div>
