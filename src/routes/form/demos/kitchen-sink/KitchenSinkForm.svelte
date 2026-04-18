@@ -20,24 +20,37 @@
 
 <div class="space-y-8">
   <form {...form.attributes()} class="w-sm space-y-6">
-
     <!-- StringField: text -->
     <div class="space-y-1">
       <label for={form.field('name').id}>Name</label>
-      <input {...form.field('name').attributes({ as: 'text' })} class="control" autocomplete="name" />
+      <input
+        {...form.field('name').attributes({ as: 'text' })}
+        class="control"
+        autocomplete="name"
+      />
     </div>
 
     <!-- StringField: email (enter bob@example.com to trigger a server error) -->
     <div class="space-y-1">
       <label for={form.field('email').id}>Email</label>
-      <input {...form.field('email').attributes({ as: 'email' })} class="control" autocomplete="email" />
-      <p class="text-xs opacity-60">Hint: enter <code>bob@example.com</code> to trigger a server-set error.</p>
+      <input
+        {...form.field('email').attributes({ as: 'email' })}
+        class="control"
+        autocomplete="email"
+      />
+      <p class="text-xs opacity-60">
+        Hint: enter <code>bob@example.com</code> to trigger a server-set error.
+      </p>
     </div>
 
     <!-- StringField: textarea -->
     <div class="space-y-1">
       <label for={form.field('bio').id}>Bio</label>
-      <textarea {...form.field('bio').attributes({ as: 'textarea' })} class="control" rows="3"></textarea>
+      <textarea
+        {...form.field('bio').attributes({ as: 'textarea' })}
+        class="control"
+        rows="3"
+      ></textarea>
     </div>
 
     <!-- BooleanField: checkbox -->
@@ -62,7 +75,9 @@
 
     <!-- NumericField: range input (bigint) -->
     <div class="space-y-1">
-      <label for={form.field('rating').id}>Rating (1–5): {form.data.rating ?? ''}</label>
+      <label for={form.field('rating').id}
+        >Rating (1–5): {form.data.rating ?? ''}</label
+      >
       <input
         {...form.field('rating').attributes({ as: 'range' })}
         min="1"
@@ -96,7 +111,11 @@
     <!-- FileField: single file -->
     <div class="space-y-1">
       <label for={form.field('avatar').id}>Avatar</label>
-      <input {...form.field('avatar').attributes()} class="control" accept="image/*" />
+      <input
+        {...form.field('avatar').attributes()}
+        class="control"
+        accept="image/*"
+      />
     </div>
 
     <!-- SingleChoiceField: result mode (controls server response path) -->
@@ -105,7 +124,9 @@
       {#each resultMode.options as value (value)}
         <label class="flex items-center gap-2">
           <input {...resultMode.radioAttributes(value)} />
-          {value === 'succeed' ? 'succeed() — stay on page' : 'redirect() — go to /form/demos'}
+          {value === 'succeed'
+            ? 'succeed() — stay on page'
+            : 'redirect() — go to /form/demos'}
         </label>
       {/each}
     </fieldset>
@@ -117,7 +138,11 @@
 
   <section>
     <h2 class="font-bold">Data</h2>
-    <pre>{JSON.stringify(form.data, (_, v) => typeof v === 'bigint' ? `${v}n` : v, 2)}</pre>
+    <pre>{JSON.stringify(
+        form.data,
+        (_, v) => (typeof v === 'bigint' ? `${v}n` : v),
+        2
+      )}</pre>
   </section>
 
   <section>

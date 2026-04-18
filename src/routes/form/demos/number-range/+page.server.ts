@@ -10,7 +10,11 @@ export const load = (event: RequestEvent) => {
 
 export const actions: Actions = {
   default: async (event: RequestEvent) => {
-    const handler = new ServerFormHandler(numberRangeFormSchema, await event.request.formData(), event);
+    const handler = new ServerFormHandler(
+      numberRangeFormSchema,
+      await event.request.formData(),
+      event
+    );
     if (!handler.valid) return handler.fail();
     setCookie(event, handler.data);
     return handler.succeed({ message: 'Saved.' });
@@ -31,7 +35,9 @@ const setCookie = (event: RequestEvent, data: NumberRangeFormData) => {
 
 const getCookie = (event: RequestEvent): NumberRangeFormData | undefined => {
   try {
-    return numberRangeFormSchema.parse(JSON.parse(event.cookies.get(COOKIE_NAME) || ''));
+    return numberRangeFormSchema.parse(
+      JSON.parse(event.cookies.get(COOKIE_NAME) || '')
+    );
   } catch {
     return undefined;
   }

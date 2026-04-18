@@ -30,7 +30,11 @@
 
   <section>
     <h2 class="font-bold">Data</h2>
-    <pre>{JSON.stringify(form.data, (_, v) => typeof v === 'bigint' ? `${v}n` : v, 2)}</pre>
+    <pre>{JSON.stringify(
+        form.data,
+        (_, v) => (typeof v === 'bigint' ? `${v}n` : v),
+        2
+      )}</pre>
   </section>
 
   <section>

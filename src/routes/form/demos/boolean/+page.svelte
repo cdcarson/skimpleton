@@ -46,9 +46,7 @@
       I agree to your onerous terms.
     </label>
     <div>
-      <button class="button primary w-full" type="submit">
-        Save
-      </button>
+      <button class="button primary w-full" type="submit"> Save </button>
     </div>
   </form>
 

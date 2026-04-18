@@ -1,6 +1,12 @@
 import z from 'zod';
 
-export const INTERESTS = ['design', 'engineering', 'product', 'marketing', 'data'] as const;
+export const INTERESTS = [
+  'design',
+  'engineering',
+  'product',
+  'marketing',
+  'data'
+] as const;
 export const NOTIFICATIONS = ['email', 'sms', 'push'] as const;
 
 export const checkboxGroupFormSchema = z.object({

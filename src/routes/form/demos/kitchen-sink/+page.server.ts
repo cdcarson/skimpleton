@@ -21,7 +21,10 @@ export const actions: Actions = {
     }
 
     if (handler.data.resultMode === 'redirect') {
-      return handler.redirect(resolve('/form/demos'), 'Redirected to demos listing.');
+      return handler.redirect(
+        resolve('/form/demos'),
+        'Redirected to demos listing.'
+      );
     }
 
     return handler.succeed({ message: 'Saved successfully.' });

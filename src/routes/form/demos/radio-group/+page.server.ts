@@ -39,7 +39,9 @@ const setCookie = (event: RequestEvent, data: RadioGroupFormData) => {
 
 const getCookie = (event: RequestEvent): RadioGroupFormData | undefined => {
   try {
-    return radioGroupFormSchema.parse(JSON.parse(event.cookies.get(COOKIE_NAME) || ''));
+    return radioGroupFormSchema.parse(
+      JSON.parse(event.cookies.get(COOKIE_NAME) || '')
+    );
   } catch {
     return undefined;
   }

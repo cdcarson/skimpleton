@@ -1,6 +1,9 @@
 <script lang="ts">
   import { ClientFormHandler } from 'skimpleton';
-  import { checkboxGroupFormSchema, type CheckboxGroupFormData } from './schema.js';
+  import {
+    checkboxGroupFormSchema,
+    type CheckboxGroupFormData
+  } from './schema.js';
   import type { ActionData } from './$types.js';
 
   type Props = {

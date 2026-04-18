@@ -1,6 +1,9 @@
 import { resolve } from '$app/paths';
 import type { SerializeOptions } from 'cookie';
-import { checkboxGroupFormSchema, type CheckboxGroupFormData } from './schema.js';
+import {
+  checkboxGroupFormSchema,
+  type CheckboxGroupFormData
+} from './schema.js';
 import type { RequestEvent, Actions } from './$types.js';
 import { ServerFormHandler } from 'skimpleton';
 
@@ -39,7 +42,9 @@ const setCookie = (event: RequestEvent, data: CheckboxGroupFormData) => {
 
 const getCookie = (event: RequestEvent): CheckboxGroupFormData | undefined => {
   try {
-    return checkboxGroupFormSchema.parse(JSON.parse(event.cookies.get(COOKIE_NAME) || ''));
+    return checkboxGroupFormSchema.parse(
+      JSON.parse(event.cookies.get(COOKIE_NAME) || '')
+    );
   } catch {
     return undefined;
   }

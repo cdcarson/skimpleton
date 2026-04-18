@@ -21,5 +21,3 @@ export const highlightCode = (
 ): string => {
   return hljs.highlight(code, { language }).value;
 };
-
-

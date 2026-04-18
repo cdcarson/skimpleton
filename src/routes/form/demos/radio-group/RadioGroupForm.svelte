@@ -34,7 +34,8 @@
       <label for={contactPreference.id}>Contact Preference</label>
       <select {...contactPreference.selectAttributes()} class="control">
         {#each contactPreference.options as value (value)}
-          <option {...contactPreference.optionAttributes(value)}>{value}</option>
+          <option {...contactPreference.optionAttributes(value)}>{value}</option
+          >
         {/each}
       </select>
     </div>

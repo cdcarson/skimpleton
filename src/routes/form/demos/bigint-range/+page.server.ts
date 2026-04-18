@@ -10,7 +10,11 @@ export const load = (event: RequestEvent) => {
 
 export const actions: Actions = {
   default: async (event: RequestEvent) => {
-    const handler = new ServerFormHandler(bigintRangeFormSchema, await event.request.formData(), event);
+    const handler = new ServerFormHandler(
+      bigintRangeFormSchema,
+      await event.request.formData(),
+      event
+    );
     if (!handler.valid) return handler.fail();
     setCookie(event, handler.data);
     return handler.succeed({ message: 'Saved.' });
@@ -39,7 +43,9 @@ const setCookie = (event: RequestEvent, data: BigintRangeFormData) => {
 
 const getCookie = (event: RequestEvent): BigintRangeFormData | undefined => {
   try {
-    return bigintRangeFormSchema.parse(JSON.parse(event.cookies.get(COOKIE_NAME) || '', reviver));
+    return bigintRangeFormSchema.parse(
+      JSON.parse(event.cookies.get(COOKIE_NAME) || '', reviver)
+    );
   } catch {
     return undefined;
   }
