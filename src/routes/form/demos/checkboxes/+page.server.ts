@@ -5,17 +5,17 @@ import {
 } from '$demo/demo-cookies.js';
 import { ServerFormHandler } from 'skimpleton';
 import type { RequestEvent, Actions } from './$types.js';
-import { booleanFormSchema } from './schema.js';
+import { checkboxesFormSchema } from './schema.js';
 import z from 'zod';
 
 import schemaTs from './schema.ts?raw';
 import pageServerTs from './+page.server.ts?raw';
 import pageSvelte from './+page.svelte?raw';
-import formSvelte from './BooleanForm.svelte?raw';
+import formSvelte from './CheckboxesForm.svelte?raw';
 
 export const load = (event: RequestEvent) => {
   return {
-    saved: getDemoCookie(event, booleanFormSchema),
+    saved: getDemoCookie(event, checkboxesFormSchema),
     code: [
       {
         label: 'schema.ts',
@@ -23,7 +23,7 @@ export const load = (event: RequestEvent) => {
         code: schemaTs
       },
       {
-        label: 'BooleanForm.svelte',
+        label: 'SelectMultipleForm.svelte',
         language: 'html',
         code: formSvelte
       },
@@ -43,7 +43,7 @@ export const load = (event: RequestEvent) => {
 export const actions: Actions = {
   selectDemo: async (event: RequestEvent) => {
     const handler = new ServerFormHandler(
-      booleanFormSchema,
+      checkboxesFormSchema,
       await event.request.formData(),
       event
     );
@@ -51,14 +51,14 @@ export const actions: Actions = {
       return handler.fail();
     }
     // arbitrary server error...
-    // if (handler.data.planetsVisited.includes('Pluto') ) {
-    //   return handler.fail({
-    //     planetsVisited: 'Sorry. Pluto has been recently discontinued as a planet.'
-    //   });
-    // }
-    setDemoCookie(event, booleanFormSchema, handler.data);
+    if (handler.data.planetsVisited.includes('Pluto') ) {
+      return handler.fail({
+        planetsVisited: 'Sorry. Pluto has been recently discontinued as a planet.'
+      });
+    }
+    setDemoCookie(event, checkboxesFormSchema, handler.data);
     return handler.succeed({
-      message: `You ${handler.data.iLikeCats ? 'like' : 'don’t like'} cats.`,
+      message: `You have visited ${handler.data.planetsVisited.length} planet(s).`,
       randomNum: Math.random()
     });
   },

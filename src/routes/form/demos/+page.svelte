@@ -22,37 +22,20 @@
 >
   <ul>
     <li>
+      <a href={resolve('/form/demos/boolean')}>Boolean</a>
+    </li>
+    <li>
       <a href={resolve('/form/demos/select')}>Select</a>
     </li>
     <li>
-      <a href={resolve('/form/demos/text')}>Text Fields</a>
+      <a href={resolve('/form/demos/radios')}>Radios</a>
     </li>
     <li>
-      <a href={resolve('/form/demos/boolean')}>Boolean Field</a>
+      <a href={resolve('/form/demos/select-multiple')}>Select (multiple)</a>
     </li>
-    <li>
-      <a href={resolve('/form/demos/checkbox-group')}>Checkboxes</a>
+     <li>
+      <a href={resolve('/form/demos/checkboxes')}>Checkboxes</a>
     </li>
-    <li>
-      <a href={resolve('/form/demos/radio-group')}>Radios</a>
-    </li>
-    <li>
-      <a href={resolve('/form/demos/file')}>File Field</a>
-    </li>
-    <li>
-      <a href={resolve('/form/demos/number')}>Number</a>
-    </li>
-    <li>
-      <a href={resolve('/form/demos/number-range')}>Number Range</a>
-    </li>
-    <li>
-      <a href={resolve('/form/demos/bigint')}>BigInt</a>
-    </li>
-    <li>
-      <a href={resolve('/form/demos/bigint-range')}>BigInt Range</a>
-    </li>
-    <li>
-      <a href={resolve('/form/demos/kitchen-sink')}>Kitchen Sink</a>
-    </li>
+    
   </ul>
 </Route>

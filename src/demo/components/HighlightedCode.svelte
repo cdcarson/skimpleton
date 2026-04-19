@@ -10,5 +10,7 @@
 </script>
 
 <!-- eslint-disable svelte/no-at-html-tags -->
-<pre class="text-sm"><code class="hljs">{@html highlighted}</code></pre>
+<pre class="border border-gray-200 text-xs"><code class="hljs"
+    >{@html highlighted}</code
+  ></pre>
 <!-- eslint-enable svelte/no-at-html-tags -->

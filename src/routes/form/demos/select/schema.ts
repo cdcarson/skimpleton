@@ -1,6 +1,14 @@
 import z from 'zod';
-import { US_STATES } from '$demo/data/states.js';
-export const schema = z.object({
-  state: z.enum(US_STATES, {error: 'Required.'})
+export const COLORS = [
+  'red',
+  'orange',
+  'yellow',
+  'green',
+  'blue',
+  'indigo',
+  'violet'
+] as const;
+export const selectFormSchema = z.object({
+  favoriteColor: z.enum(COLORS, { error: 'Required.' })
 });
-export type Shape = z.infer<typeof schema>;
+export type SelectFormData = z.infer<typeof selectFormSchema>;

@@ -304,10 +304,15 @@ export class ClientFormHandler<
       id: this.#formId,
       method: 'post',
       [this.#enhanceAttachmentKey]: this.#enhanceAttachment,
+      onfocusout: (event) => {
+        const name = (event.target as HTMLInputElement).name as FormName<T>;
+        if (name) {
+          this.touch(name);
+        }
+      },
       oninput: (event) => {
         this.#formData = new FormData(event.currentTarget);
         const name = (event.target as HTMLInputElement).name as FormName<T>;
-        console.log(name);
         if (name && name in this.#externalErrors) {
           const updated = { ...this.#externalErrors };
           delete updated[name];
