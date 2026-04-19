@@ -1,8 +1,14 @@
 import z from 'zod';
-import { US_STATES } from '$demo/data/states.js';
+export const COLORS = [
+  'red',
+  'orange',
+  'yellow',
+  'green',
+  'blue',
+  'indigo',
+  'violet'
+] as const;
 export const selectFormSchema = z.object({
-  state: z.enum(US_STATES, { error: 'Required.' })
+  favoriteColor: z.enum(COLORS, { error: 'Required.' })
 });
 export type SelectFormData = z.infer<typeof selectFormSchema>;
-
-export const deleteSavedFormSchema = z.object({});
