@@ -68,6 +68,8 @@ export class ClientFormHandler<
   #fields: SvelteMap<FormName<T>, Field<T>>;
   #enhanceAttachmentKey: symbol;
   #enhanceAttachment: Attachment<HTMLFormElement>;
+  #novalidateKey: symbol;
+  #novalidateAttachment: Attachment<HTMLFormElement>;
 
   constructor(
     schema: FormSchema<T>,
@@ -127,6 +129,12 @@ export class ClientFormHandler<
     this.#valid = $derived(Object.keys(this.#errors).length === 0);
     this.#submitting = $state(false);
     this.#success = $state(initialState?.success ?? undefined);
+
+    this.#novalidateKey = createAttachmentKey();
+    this.#novalidateAttachment = fromAction((node: HTMLFormElement) => {
+      node.setAttribute('novalidate', '');
+      return { destroy() { node.removeAttribute('novalidate'); } };
+    });
 
     this.#enhanceAttachmentKey = createAttachmentKey();
     this.#enhanceAttachment = fromAction(
@@ -300,12 +308,19 @@ export class ClientFormHandler<
   }
 
   attributes(): HTMLFormAttributes {
+    const hasFileField = this.#fieldDefinitions
+      .values()
+      .some((def) => def.castType === 'file');
     return {
       id: this.#formId,
       method: 'post',
+      ...(hasFileField ? { enctype: 'multipart/form-data' } : {}),
+      [this.#novalidateKey]: this.#novalidateAttachment,
       [this.#enhanceAttachmentKey]: this.#enhanceAttachment,
       onfocusout: (event) => {
-        const name = (event.target as HTMLInputElement).name as FormName<T>;
+        const target = event.target as HTMLInputElement;
+        if (target.type === 'file') return;
+        const name = target.name as FormName<T>;
         if (name) {
           this.touch(name);
         }
@@ -369,7 +384,10 @@ class FileField<T extends FormShape, IsArray extends boolean> extends Field<
       name: this.name,
       id: this.id,
       type: 'file',
-      multiple: this.definition.isArray
+      multiple: this.definition.isArray,
+      onchange: () => {
+        this.handler.touch(this.name as FormName<T>);
+      }
     };
   }
 }
