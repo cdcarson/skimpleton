@@ -187,7 +187,13 @@ export const formDataToPojo = <T extends FormShape>(
 
   const pojo: Record<string, unknown> = {};
   for (const def of defs) {
-    const values = formData.getAll(def.name);
+    // Browsers submit a single empty File placeholder when no file is selected.
+    // Filter those out so the logic below sees an empty list correctly.
+    const rawValues = formData.getAll(def.name);
+    const values =
+      def.castType === 'file'
+        ? rawValues.filter((v) => v instanceof File && v.name !== '')
+        : rawValues;
     if (values.length === 0) {
       if (def.castType === 'boolean') {
         setAtPath(pojo, def.name, false);

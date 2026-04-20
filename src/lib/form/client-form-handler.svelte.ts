@@ -300,12 +300,18 @@ export class ClientFormHandler<
   }
 
   attributes(): HTMLFormAttributes {
+    const hasFileField = this.#fieldDefinitions
+      .values()
+      .some((def) => def.castType === 'file');
     return {
       id: this.#formId,
       method: 'post',
+      ...(hasFileField ? { enctype: 'multipart/form-data' } : {}),
       [this.#enhanceAttachmentKey]: this.#enhanceAttachment,
       onfocusout: (event) => {
-        const name = (event.target as HTMLInputElement).name as FormName<T>;
+        const target = event.target as HTMLInputElement;
+        if (target.type === 'file') return;
+        const name = target.name as FormName<T>;
         if (name) {
           this.touch(name);
         }
@@ -369,7 +375,10 @@ class FileField<T extends FormShape, IsArray extends boolean> extends Field<
       name: this.name,
       id: this.id,
       type: 'file',
-      multiple: this.definition.isArray
+      multiple: this.definition.isArray,
+      onchange: () => {
+        this.handler.touch(this.name as FormName<T>);
+      }
     };
   }
 }

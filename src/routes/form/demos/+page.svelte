@@ -36,6 +36,11 @@
      <li>
       <a href={resolve('/form/demos/checkboxes')}>Checkboxes</a>
     </li>
-    
+    <li>
+      <a href={resolve('/form/demos/file')}>File (single)</a>
+    </li>
+    <li>
+      <a href={resolve('/form/demos/file-multiple')}>File (multiple)</a>
+    </li>
   </ul>
 </Route>

@@ -1,7 +1,7 @@
 <script lang="ts">
   import Route from '$demo/components/Route.svelte';
   import { resolve } from '$app/paths';
-  import BooleanForm from './BooleanForm.svelte';
+  import FileForm from './FileForm.svelte';
   import CodeTabs from '$demo/components/CodeTabs.svelte';
 
   let { data, form } = $props();
@@ -9,7 +9,7 @@
 
 <Route
   fullWidth
-  pageTitle="Boolean Checkbox"
+  pageTitle="Single File"
   breadcrumbs={[
     {
       href: resolve('/'),
@@ -24,14 +24,14 @@
       label: 'Demos'
     },
     {
-      href: resolve('/form/demos/boolean'),
-      label: 'Boolean'
+      href: resolve('/form/demos/file'),
+      label: 'File'
     }
   ]}
 >
   <div class="grid items-start lg:grid-cols-2 gap-16">
     <div>
-      <BooleanForm actionData={form} savedData={data.saved} />
+      <FileForm actionData={form} savedData={data.saved} />
     </div>
     <div>
       <CodeTabs tabs={data.code} />
