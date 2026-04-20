@@ -34,6 +34,8 @@
     <li><a href={resolve('/form/demos/week')}>Week</a></li>
     <li><a href={resolve('/form/demos/color')}>Color</a></li>
     <li><a href={resolve('/form/demos/textarea')}>Textarea</a></li>
+    <li><a href={resolve('/form/demos/number')}>Number</a></li>
+    <li><a href={resolve('/form/demos/range')}>Range</a></li>
     <li><a href={resolve('/form/demos/boolean')}>Boolean</a></li>
     <li><a href={resolve('/form/demos/select')}>Select</a></li>
     <li><a href={resolve('/form/demos/radios')}>Radios</a></li>
