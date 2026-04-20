@@ -68,6 +68,8 @@ export class ClientFormHandler<
   #fields: SvelteMap<FormName<T>, Field<T>>;
   #enhanceAttachmentKey: symbol;
   #enhanceAttachment: Attachment<HTMLFormElement>;
+  #novalidateKey: symbol;
+  #novalidateAttachment: Attachment<HTMLFormElement>;
 
   constructor(
     schema: FormSchema<T>,
@@ -127,6 +129,12 @@ export class ClientFormHandler<
     this.#valid = $derived(Object.keys(this.#errors).length === 0);
     this.#submitting = $state(false);
     this.#success = $state(initialState?.success ?? undefined);
+
+    this.#novalidateKey = createAttachmentKey();
+    this.#novalidateAttachment = fromAction((node: HTMLFormElement) => {
+      node.setAttribute('novalidate', '');
+      return { destroy() { node.removeAttribute('novalidate'); } };
+    });
 
     this.#enhanceAttachmentKey = createAttachmentKey();
     this.#enhanceAttachment = fromAction(
@@ -307,6 +315,7 @@ export class ClientFormHandler<
       id: this.#formId,
       method: 'post',
       ...(hasFileField ? { enctype: 'multipart/form-data' } : {}),
+      [this.#novalidateKey]: this.#novalidateAttachment,
       [this.#enhanceAttachmentKey]: this.#enhanceAttachment,
       onfocusout: (event) => {
         const target = event.target as HTMLInputElement;

@@ -19,7 +19,7 @@
 <div class="space-y-8">
   <div class="border border-gray-200">
     <h3 class="bg-gray-200 px-4 py-2 font-semibold">Demo Form</h3>
-    <form {...form.attributes()} action="?/selectDemo" class="space-y-4 p-4">
+    <form {...form.attributes()}  action="?/selectDemo" class="space-y-4 p-4">
       <div class="space-y-1">
         <label for={form.field('file').id}>File</label>
         <input
