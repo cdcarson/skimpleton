@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { unwrapZodType, getFormFieldDefinitions } from './utils.js';
+import {
+  unwrapZodType,
+  getFormFieldDefinitions,
+  formDataToPojo
+} from './utils.js';
 import z from 'zod';
 
 describe('unwrapZodType', () => {
@@ -63,12 +67,12 @@ describe('getFormFieldDefinitions', () => {
       })
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs[0]).toEqual({
+    expect(defs.get('name.first')).toEqual({
       name: 'name.first',
       castType: 'string',
       isArray: false
     });
-    expect(defs[1]).toEqual({
+    expect(defs.get('name.last')).toEqual({
       name: 'name.last',
       castType: 'string',
       isArray: false
@@ -79,7 +83,7 @@ describe('getFormFieldDefinitions', () => {
       faves: z.array(z.string())
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs[0]).toEqual({
+    expect(defs.get('faves')).toEqual({
       name: 'faves',
       castType: 'string',
       isArray: true
@@ -90,7 +94,7 @@ describe('getFormFieldDefinitions', () => {
       faves: z.string()
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs[0]).toEqual({
+    expect(defs.get('faves')).toEqual({
       name: 'faves',
       castType: 'string',
       isArray: false
@@ -101,11 +105,10 @@ describe('getFormFieldDefinitions', () => {
       faves: z.enum(['red', 'green', 'blue'])
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs[0]).toEqual({
+    expect(defs.get('faves')).toEqual({
       name: 'faves',
       castType: 'string',
-      isArray: false,
-      options: ['red', 'green', 'blue']
+      isArray: false
     });
   });
   it('is correct for z.array(z.enum())', () => {
@@ -113,11 +116,10 @@ describe('getFormFieldDefinitions', () => {
       faves: z.array(z.enum(['red', 'green', 'blue']))
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs[0]).toEqual({
+    expect(defs.get('faves')).toEqual({
       name: 'faves',
       castType: 'string',
-      isArray: true,
-      options: ['red', 'green', 'blue']
+      isArray: true
     });
   });
 
@@ -128,11 +130,10 @@ describe('getFormFieldDefinitions', () => {
       })
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs[0]).toEqual({
+    expect(defs.get('faves.colors')).toEqual({
       name: 'faves.colors',
       castType: 'string',
-      isArray: true,
-      options: ['red', 'green', 'blue']
+      isArray: true
     });
   });
 
@@ -141,7 +142,7 @@ describe('getFormFieldDefinitions', () => {
       faves: z.literal('hop')
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs[0]).toEqual({
+    expect(defs.get('faves')).toEqual({
       name: 'faves',
       castType: 'string',
       isArray: false
@@ -152,17 +153,25 @@ describe('getFormFieldDefinitions', () => {
       file: z.file()
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs[0]).toEqual({ name: 'file', castType: 'file', isArray: false });
+    expect(defs.get('file')).toEqual({
+      name: 'file',
+      castType: 'file',
+      isArray: false
+    });
   });
   it('is correct for z.array(z.file())', () => {
     const schema = z.object({
       files: z.array(z.file())
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs[0]).toEqual({ name: 'files', castType: 'file', isArray: true });
+    expect(defs.get('files')).toEqual({
+      name: 'files',
+      castType: 'file',
+      isArray: true
+    });
   });
 
-  it('is correct tor a complex schema', () => {
+  it('is correct for a complex schema', () => {
     const schema = z.object({
       name: z.object({
         first: z.string(),
@@ -177,41 +186,122 @@ describe('getFormFieldDefinitions', () => {
       })
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs).toContainEqual({
+    expect(defs.get('name.first')).toEqual({
       name: 'name.first',
       castType: 'string',
       isArray: false
     });
-    expect(defs).toContainEqual({
+    expect(defs.get('name.last')).toEqual({
       name: 'name.last',
       castType: 'string',
       isArray: false
     });
-    expect(defs).toContainEqual({
+    expect(defs.get('name.middle')).toEqual({
       name: 'name.middle',
       castType: 'string',
       isArray: false
     });
-    expect(defs).toContainEqual({
+    expect(defs.get('faves.number')).toEqual({
       name: 'faves.number',
       castType: 'number',
       isArray: true
     });
-    expect(defs).toContainEqual({
+    expect(defs.get('faves.color')).toEqual({
       name: 'faves.color',
       castType: 'string',
-      isArray: true,
-      options: ['red', 'green', 'blue']
+      isArray: true
     });
-    expect(defs).toContainEqual({
+    expect(defs.get('faves.pet')).toEqual({
       name: 'faves.pet',
       castType: 'string',
       isArray: true
     });
-    expect(defs).toContainEqual({
+    expect(defs.get('faves.files')).toEqual({
       name: 'faves.files',
       castType: 'file',
       isArray: true
+    });
+  });
+});
+
+describe('formDataToPojo — file fields', () => {
+  const schema = z.object({
+    avatar: z.file(),
+    attachments: z.array(z.file()).default([])
+  });
+
+  const realFile = new File(['content'], 'photo.jpg', { type: 'image/jpeg' });
+  // Browsers inject an empty File for unselected file inputs when FormData is
+  // built from a form element (e.g. `new FormData(formEl)`).
+  const emptyFile = new File([], '');
+
+  describe('single file field (avatar)', () => {
+    it('returns the File when a real file is present', () => {
+      const fd = new FormData();
+      fd.set('avatar', realFile);
+      const result = formDataToPojo(getFormFieldDefinitions(schema), fd);
+      expect(result.avatar).toBe(realFile);
+    });
+
+    it('returns undefined when the field has no entry', () => {
+      const fd = new FormData();
+      const result = formDataToPojo(getFormFieldDefinitions(schema), fd);
+      expect(result.avatar).toBeUndefined();
+    });
+
+    it('returns undefined when the browser sends an empty string for an unselected input', () => {
+      const fd = new FormData();
+      fd.set('avatar', ''); // some browsers/implementations send empty string
+      const result = formDataToPojo(getFormFieldDefinitions(schema), fd);
+      expect(result.avatar).toBeUndefined();
+    });
+
+    it('returns undefined when the browser sends an empty File for an unselected input', () => {
+      const fd = new FormData();
+      fd.set('avatar', emptyFile); // Chrome sends File{name:"",size:0} for unselected inputs
+      const result = formDataToPojo(getFormFieldDefinitions(schema), fd);
+      expect(result.avatar).toBeUndefined();
+    });
+  });
+
+  describe('array file field (attachments)', () => {
+    it('returns [] when there are no entries', () => {
+      const fd = new FormData();
+      const result = formDataToPojo(getFormFieldDefinitions(schema), fd);
+      expect(result.attachments).toEqual([]);
+    });
+
+    it('returns [] when the browser sends an empty string for an unselected input', () => {
+      const fd = new FormData();
+      fd.append('attachments', '');
+      const result = formDataToPojo(getFormFieldDefinitions(schema), fd);
+      expect(result.attachments).toEqual([]);
+    });
+
+    it('returns [] when the browser sends an empty File for an unselected input', () => {
+      const fd = new FormData();
+      fd.append('attachments', emptyFile);
+      const result = formDataToPojo(getFormFieldDefinitions(schema), fd);
+      expect(result.attachments).toEqual([]);
+    });
+
+    it('returns the files when real files are present', () => {
+      const f1 = new File(['a'], 'a.jpg');
+      const f2 = new File(['b'], 'b.pdf');
+      const fd = new FormData();
+      fd.append('attachments', f1);
+      fd.append('attachments', f2);
+      const result = formDataToPojo(getFormFieldDefinitions(schema), fd);
+      expect(result.attachments).toEqual([f1, f2]);
+    });
+
+    it('filters out empty-File placeholders mixed with real files', () => {
+      const f1 = new File(['a'], 'a.jpg');
+      const fd = new FormData();
+      fd.append('attachments', emptyFile);
+      fd.append('attachments', f1);
+      const result = formDataToPojo(getFormFieldDefinitions(schema), fd);
+      expect(result.attachments).toEqual([f1]);
     });
   });
 });

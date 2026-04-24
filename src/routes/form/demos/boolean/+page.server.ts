@@ -30,7 +30,7 @@ export const load = (event: RequestEvent) => {
       {
         label: '+page.svelte',
         language: 'html',
-        code:  pageSvelte
+        code: pageSvelte
       },
       {
         label: '+page.server.ts',
@@ -51,11 +51,17 @@ export const actions: Actions = {
       return handler.fail();
     }
     // arbitrary server error...
-    // if (handler.data.planetsVisited.includes('Pluto') ) {
-    //   return handler.fail({
-    //     planetsVisited: 'Sorry. Pluto has been recently discontinued as a planet.'
-    //   });
-    // }
+    if (handler.data.iLikeCats && !handler.data.iOwnACat) {
+      return handler.fail({
+        iOwnACat: 'If you like cats you must own one.'
+      });
+    } else if (!handler.data.iLikeCats && handler.data.iOwnACat) {
+      return handler.fail({
+        iOwnACat: 'If you don’t like cats you shouldn’t be a cat owner.'
+      });
+    }
+    // handler.data.demoHiddenBoolean = Math.random() < .5;
+
     setDemoCookie(event, booleanFormSchema, handler.data);
     return handler.succeed({
       message: `You ${handler.data.iLikeCats ? 'like' : 'don’t like'} cats.`,

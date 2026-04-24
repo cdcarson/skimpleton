@@ -1,24 +1,23 @@
 import { SvelteMap } from 'svelte/reactivity';
 import type {
-  FieldTypeAt,
   FormErrors,
-  FormFieldCastType,
   FormFieldDefinition,
+  FormFlatObject,
   FormName,
+  FormPrimitiveCastType,
   FormSchema,
   FormShape,
-  InitialFormState,
+  FormState,
   FormSuccess,
-  FormTouched,
-  FormState
-} from './types.js';
+  FormTouched
+} from './types.ts';
 import {
   formDataToPojo,
+  getDefaultData,
   getFormErrors,
   getFormFieldDefinitions,
   pojoToFormData
-} from './utils.js';
-import type { HTMLFormAttributes } from 'svelte/elements';
+} from './utils.ts';
 import {
   createAttachmentKey,
   fromAction,
@@ -29,43 +28,27 @@ import type { Action } from 'svelte/action';
 import type { SubmitFunction } from '@sveltejs/kit';
 import { MessageService } from '$lib/message/message.svelte.js';
 import { goto, invalidateAll } from '$app/navigation';
-// import { createAttachmentKey, type Attachment } from 'svelte/attachments';
-
-type Definite<T> = Exclude<T, undefined | null>;
-
-type FieldFor<T extends FormShape, N extends FormName<T>> =
-  Definite<FieldTypeAt<T, N>> extends File | File[]
-    ? FileField<T, Definite<FieldTypeAt<T, N>> extends File[] ? true : false>
-    : Definite<FieldTypeAt<T, N>> extends boolean
-      ? BooleanField<T>
-      : Definite<FieldTypeAt<T, N>> extends number | bigint
-        ? NumericField<T>
-        : Definite<FieldTypeAt<T, N>> extends string[]
-          ? MultipleChoiceField<T>
-          : Definite<FieldTypeAt<T, N>> extends string
-            ? string extends Definite<FieldTypeAt<T, N>>
-              ? StringField<T>
-              : SingleChoiceField<T>
-            : Field<T>;
+import type { HTMLFormAttributes } from 'svelte/elements';
 
 export class ClientFormHandler<
   T extends FormShape,
-  Success extends FormSuccess = FormSuccess
+  Success extends Record<string, unknown> | undefined = undefined
 > {
   #schema: FormSchema<T>;
   #fieldDefinitions: SvelteMap<FormName<T>, FormFieldDefinition<T>>;
   #formData: FormData;
   #data: T;
+  #fields: { [N in FormName<T>]: FieldFor<T, N> };
   #formId: string;
   #touched: FormTouched<T>;
   #externalErrors: FormErrors<T>;
   #computedErrors: FormErrors<T>;
   #errors: FormErrors<T>;
   #shownErrors: FormErrors<T>;
+
   #valid: boolean;
   #submitting: boolean;
   #success: FormSuccess | undefined;
-  #fields: SvelteMap<FormName<T>, Field<T>>;
   #enhanceAttachmentKey: symbol;
   #enhanceAttachment: Attachment<HTMLFormElement>;
   #novalidateKey: symbol;
@@ -73,59 +56,51 @@ export class ClientFormHandler<
 
   constructor(
     schema: FormSchema<T>,
-    initialState: InitialFormState<T, Success>
+    initialState?: Partial<FormState<T, Success>>
   ) {
     this.#schema = schema;
     this.#formId = `skf-${Math.random().toString(36).substring(2, 15)}`;
     this.#fieldDefinitions = new SvelteMap(
-      getFormFieldDefinitions(this.#schema).map(
-        (value): [FormName<T>, FormFieldDefinition<T>] => [value.name, value]
-      )
+      getFormFieldDefinitions(this.schema)
     );
     this.#formData = $state(
       pojoToFormData(
-        Array.from(this.#fieldDefinitions.values()),
-        initialState.data
+        this.fieldDefinitions,
+        initialState?.data || getDefaultData(this.#schema)
       )
     );
 
-    this.#fields = new SvelteMap(
+    this.#fields = Object.fromEntries(
       [...this.#fieldDefinitions].map(([name, def]) => [
         name,
         this.#createField(def)
       ])
+    ) as { [N in FormName<T>]: FieldFor<T, N> };
+
+    this.#data = $derived(
+      formDataToPojo(this.fieldDefinitions, this.#formData)
     );
 
-    // initialize #touched...
     this.#touched = $state(
-      Object.keys(initialState.errors || {}).reduce((acc, key) => {
+      Object.keys(initialState?.errors || {}).reduce((acc, key) => {
         return { ...acc, [key]: true };
       }, {} as FormTouched<T>)
     );
-
-    this.#data = $derived(
-      formDataToPojo(
-        Array.from(this.#fieldDefinitions.values()),
-        this.#formData
-      )
-    );
-
-    this.#externalErrors = $state(initialState.errors || {});
-    this.#computedErrors = $derived(getFormErrors(this.schema, this.#data));
+    this.#externalErrors = $state(initialState?.errors || {});
+    this.#computedErrors = $derived(getFormErrors(this.schema, this.data));
     this.#errors = $derived({
-      ...this.#computedErrors,
-      ...this.#externalErrors
+      ...this.computedErrors,
+      ...this.externalErrors
     });
     this.#shownErrors = $derived.by(() => {
       const shown: FormErrors<T> = {};
-      Object.keys(this.#errors).forEach((key) => {
-        if (this.#touched[key as FormName<T>]) {
+      Object.keys(this.errors).forEach((key) => {
+        if (this.touched[key as FormName<T>]) {
           shown[key as FormName<T>] = this.#errors[key as FormName<T>];
         }
       });
       return shown;
     });
-
     this.#valid = $derived(Object.keys(this.#errors).length === 0);
     this.#submitting = $state(false);
     this.#success = $state(initialState?.success ?? undefined);
@@ -133,9 +108,12 @@ export class ClientFormHandler<
     this.#novalidateKey = createAttachmentKey();
     this.#novalidateAttachment = fromAction((node: HTMLFormElement) => {
       node.setAttribute('novalidate', '');
-      return { destroy() { node.removeAttribute('novalidate'); } };
+      return {
+        destroy() {
+          node.removeAttribute('novalidate');
+        }
+      };
     });
-
     this.#enhanceAttachmentKey = createAttachmentKey();
     this.#enhanceAttachment = fromAction(
       enhance as Action<
@@ -177,8 +155,26 @@ export class ClientFormHandler<
             }
 
             if (r.result.type === 'success' && data.success) {
-              // todo set data to formData
-              // this.data = data.data;
+              const newFormData = pojoToFormData(
+                this.fieldDefinitions,
+                data.data
+              );
+              // Server strips file fields via removeFiles — copy them back from
+              // the current formData so the DOM stays in sync with internal state.
+              for (const def of this.fieldDefinitions.values()) {
+                if (def.castType === 'file') {
+                  if (def.isArray) {
+                    this.#formData
+                      .getAll(def.name)
+                      .forEach((f) => newFormData.append(def.name, f));
+                  } else {
+                    const f = this.#formData.get(def.name);
+                    if (f) newFormData.set(def.name, f);
+                  }
+                }
+              }
+              this.#formData = newFormData;
+              this.untouchAll();
               this.#success = data.success;
 
               await invalidateAll();
@@ -200,60 +196,18 @@ export class ClientFormHandler<
     );
   }
 
-  #getErrorToastMessage(): string {
-    // todo allow the user to pass a string or function
-    return `Please correct the error${Object.keys(this.errors).length > 1 ? 's' : ''}.`;
-  }
-
-  #createField(definition: FormFieldDefinition<T>): Field<T> {
-    if (definition.castType === 'file') {
-      return new FileField(
-        this,
-        definition as FormFieldDefinition<T, 'file', boolean>
-      );
-    }
-    if (definition.castType === 'boolean') {
-      return new BooleanField(
-        this,
-        definition as FormFieldDefinition<T, 'boolean', false>
-      );
-    }
-    if (
-      (definition.castType === 'number' || definition.castType === 'bigint') &&
-      !definition.isArray
-    ) {
-      return new NumericField(
-        this,
-        definition as FormFieldDefinition<T, 'number' | 'bigint', false>
-      );
-    }
-    if (definition.castType === 'string' && !definition.isArray) {
-      if (definition.options) {
-        return new SingleChoiceField(
-          this,
-          definition as FormFieldDefinition<T, 'string', false>
-        );
-      }
-      return new StringField(
-        this,
-        definition as FormFieldDefinition<T, 'string', false>
-      );
-    }
-    if (definition.castType === 'string' && definition.isArray) {
-      return new MultipleChoiceField(
-        this,
-        definition as FormFieldDefinition<T, 'string', true>
-      );
-    }
-    return new Field(this, definition);
-  }
-
   get schema(): FormSchema<T> {
     return this.#schema;
   }
+
+  get fieldDefinitions(): SvelteMap<FormName<T>, FormFieldDefinition<T>> {
+    return this.#fieldDefinitions;
+  }
+
   get formData(): FormData {
     return this.#formData;
   }
+
   get data(): T {
     return this.#data;
   }
@@ -261,19 +215,24 @@ export class ClientFormHandler<
   get formId(): string {
     return this.#formId;
   }
-
+  get touched(): FormTouched<T> {
+    return this.#touched;
+  }
+  get externalErrors(): FormErrors<T> {
+    return this.#externalErrors;
+  }
+  get computedErrors(): FormErrors<T> {
+    return this.#computedErrors;
+  }
   get errors(): FormErrors<T> {
     return this.#errors;
   }
-
   get shownErrors(): FormErrors<T> {
     return this.#shownErrors;
   }
-
   get valid(): boolean {
     return this.#valid;
   }
-
   get submitting(): boolean {
     return this.#submitting;
   }
@@ -283,7 +242,7 @@ export class ClientFormHandler<
   }
 
   field<N extends FormName<T>>(name: N): FieldFor<T, N> {
-    return this.#fields.get(name) as FieldFor<T, N>;
+    return this.#fields[name];
   }
 
   touchAll() {
@@ -297,13 +256,13 @@ export class ClientFormHandler<
   untouchAll() {
     this.#touched = {};
   }
-  touch(path: FormName<T>) {
-    this.#touched[path] = true;
+  touch(name: FormName<T>) {
+    this.#touched[name] = true;
   }
 
-  untouch(path: FormName<T>) {
+  untouch(name: FormName<T>) {
     const touched = { ...this.#touched };
-    delete touched[path];
+    delete touched[name];
     this.#touched = touched;
   }
 
@@ -312,19 +271,10 @@ export class ClientFormHandler<
       .values()
       .some((def) => def.castType === 'file');
     return {
-      id: this.#formId,
       method: 'post',
       ...(hasFileField ? { enctype: 'multipart/form-data' } : {}),
       [this.#novalidateKey]: this.#novalidateAttachment,
       [this.#enhanceAttachmentKey]: this.#enhanceAttachment,
-      onfocusout: (event) => {
-        const target = event.target as HTMLInputElement;
-        if (target.type === 'file') return;
-        const name = target.name as FormName<T>;
-        if (name) {
-          this.touch(name);
-        }
-      },
       oninput: (event) => {
         this.#formData = new FormData(event.currentTarget);
         const name = (event.target as HTMLInputElement).name as FormName<T>;
@@ -333,42 +283,204 @@ export class ClientFormHandler<
           delete updated[name];
           this.#externalErrors = updated;
         }
+      },
+      onfocusout: (event) => {
+        const name = (event.target as HTMLInputElement).name as FormName<T>;
+        const def = this.fieldDefinitions.get(name);
+        // don't do this for file inputs, since the picker blurs the input
+        if (def && def.castType !== 'file') {
+          this.touch(name);
+        }
+      },
+      onchange: (event) => {
+        const name = (event.target as HTMLInputElement).name as FormName<T>;
+        const def = this.fieldDefinitions.get(name);
+        // only do this for file inputs, see above
+        if (def && def.castType === 'file') {
+          this.touch(name);
+        }
       }
     };
   }
+
+  #createField(definition: FormFieldDefinition<T>): BaseField<T> {
+    if (definition.castType === 'file') {
+      return new FileField(
+        this,
+        definition as FormFieldDefinition<T, 'file', boolean>
+      );
+    }
+    if (definition.castType === 'boolean') {
+      return new BooleanField(
+        this,
+        definition as FormFieldDefinition<T, 'boolean', false>
+      );
+    }
+    if (definition.castType === 'number' || definition.castType === 'bigint') {
+      if (definition.isArray) {
+        return new NumericMultipleChoiceField(
+          this,
+          definition as FormFieldDefinition<T, 'number' | 'bigint', true>
+        );
+      } else {
+        return new NumericField(
+          this,
+          definition as FormFieldDefinition<T, 'number' | 'bigint', false>
+        );
+      }
+    }
+    if (definition.castType === 'string') {
+      if (definition.isArray) {
+        return new StringMultipleChoiceField(
+          this,
+          definition as FormFieldDefinition<T, 'string', true>
+        );
+      } else {
+        return new StringField(
+          this,
+          definition as FormFieldDefinition<T, 'string', false>
+        );
+      }
+    }
+    const _exhaustive: never = definition.castType;
+    throw new Error(`Unhandled castType: ${_exhaustive}`);
+  }
+
+  #getErrorToastMessage(): string {
+    // todo allow the user to pass a string or function
+    return `Please correct the error${Object.keys(this.errors).length > 1 ? 's' : ''}.`;
+  }
 }
 
-class Field<
+type Definite<T> = Exclude<T, undefined | null>;
+
+type FieldTypeAt<
   T extends FormShape,
-  CastType extends FormFieldCastType = FormFieldCastType,
+  N extends FormName<T>
+> = N extends `${infer K}.${infer SubK}`
+  ? K extends keyof T
+    ? T[K] extends FormFlatObject
+      ? SubK extends keyof T[K]
+        ? T[K][SubK]
+        : never
+      : never
+    : never
+  : N extends keyof T
+    ? T[N]
+    : never;
+
+type FieldFor<T extends FormShape, N extends FormName<T>> =
+  Definite<FieldTypeAt<T, N>> extends File[]
+    ? FileField<T, true>
+    : Definite<FieldTypeAt<T, N>> extends File
+      ? FileField<T, false>
+      : Definite<FieldTypeAt<T, N>> extends boolean
+        ? BooleanField<T>
+        : Definite<FieldTypeAt<T, N>> extends (number | bigint)[]
+          ? NumericMultipleChoiceField<T, 'number' | 'bigint'>
+          : Definite<FieldTypeAt<T, N>> extends number | bigint
+            ? NumericField<T, 'number' | 'bigint'>
+            : Definite<FieldTypeAt<T, N>> extends string[]
+              ? StringMultipleChoiceField<T>
+              : Definite<FieldTypeAt<T, N>> extends string
+                ? StringField<T>
+                : never;
+
+type BaseFieldAttributes = {
+  name: string;
+  id: string;
+};
+
+class BaseField<
+  T extends FormShape,
+  CastType extends FormPrimitiveCastType = FormPrimitiveCastType,
   IsArray extends boolean = boolean
 > {
   #handler: ClientFormHandler<T>;
-  #definition: FormFieldDefinition<T, CastType, IsArray>;
+  #fieldDefinition: FormFieldDefinition<T, CastType, IsArray>;
   constructor(
     handler: ClientFormHandler<T>,
-    definition: FormFieldDefinition<T, CastType, IsArray>
+    fieldDefinition: FormFieldDefinition<T, CastType, IsArray>
   ) {
     this.#handler = handler;
-    this.#definition = definition;
+    this.#fieldDefinition = fieldDefinition;
   }
   get handler(): ClientFormHandler<T> {
     return this.#handler;
   }
-  get definition(): FormFieldDefinition<T, CastType, IsArray> {
-    return this.#definition;
+  get fieldDefinition(): FormFieldDefinition<T, CastType, IsArray> {
+    return this.#fieldDefinition;
   }
-  get name(): string {
-    return this.definition.name;
+  get name(): FormName<T> {
+    return this.fieldDefinition.name;
   }
   get id(): string {
-    return [this.#handler.formId, ...this.#definition.name.split('.')].join(
-      '-'
-    );
+    return [this.handler.formId, ...this.name.split('.')].join('-');
   }
 }
 
-class FileField<T extends FormShape, IsArray extends boolean> extends Field<
+class BooleanField<T extends FormShape> extends BaseField<T, 'boolean', false> {
+  constructor(
+    handler: ClientFormHandler<T>,
+    definition: FormFieldDefinition<T, 'boolean', false>
+  ) {
+    super(handler, definition);
+  }
+
+  checkboxAttributes(): BaseFieldAttributes & {
+    type: 'checkbox';
+    checked: boolean;
+  } {
+    return {
+      name: this.name,
+      id: this.id,
+      type: 'checkbox',
+      checked: this.handler.formData.get(this.name) === 'on'
+    };
+  }
+
+  radioAttributes(value: boolean): BaseFieldAttributes & {
+    type: 'radio';
+    value: 'on' | '';
+    checked: boolean;
+  } {
+    return {
+      name: this.name,
+      id: `${this.id}-${value ? 'on' : 'off'}`,
+      type: 'radio',
+      value: value ? 'on' : '',
+      checked: (this.handler.formData.get(this.name) === 'on') === value
+    };
+  }
+
+  selectAttributes(): BaseFieldAttributes {
+    return {
+      name: this.name,
+      id: this.id
+    };
+  }
+
+  optionAttributes(value: boolean): { value: 'on' | ''; selected: boolean } {
+    return {
+      value: value ? 'on' : '',
+      selected: (this.handler.formData.get(this.name) === 'on') === value
+    };
+  }
+
+  hiddenAttributes(): BaseFieldAttributes & {
+    type: 'hidden';
+    value: 'on' | '';
+  } {
+    return {
+      name: this.name,
+      id: this.id,
+      type: 'hidden',
+      value: this.handler.formData.get(this.name) === 'on' ? 'on' : ''
+    };
+  }
+}
+
+class FileField<T extends FormShape, IsArray extends boolean> extends BaseField<
   T,
   'file',
   IsArray
@@ -379,95 +491,96 @@ class FileField<T extends FormShape, IsArray extends boolean> extends Field<
   ) {
     super(handler, definition);
   }
-  attributes() {
+  inputAttributes(): BaseFieldAttributes & {
+    type: 'file';
+    multiple: IsArray;
+  } {
     return {
       name: this.name,
       id: this.id,
       type: 'file',
-      multiple: this.definition.isArray,
-      onchange: () => {
-        this.handler.touch(this.name as FormName<T>);
-      }
+      multiple: this.fieldDefinition.isArray
     };
   }
 }
 
-class BooleanField<T extends FormShape> extends Field<T, 'boolean', false> {
+class NumericField<
+  T extends FormShape,
+  CastType extends 'number' | 'bigint'
+> extends BaseField<T, CastType, false> {
   constructor(
     handler: ClientFormHandler<T>,
-    definition: FormFieldDefinition<T, 'boolean', false>
+    definition: FormFieldDefinition<T, CastType, false>
   ) {
     super(handler, definition);
   }
-  attributes() {
+
+  inputAttributes<As extends 'number' | 'range' | 'hidden'>(
+    as: As
+  ): BaseFieldAttributes & { value: string; type: As } {
     return {
       name: this.name,
       id: this.id,
-      type: 'checkbox',
-      checked: this.handler.formData.get(this.name) === 'on'
+      type: as,
+      value: (this.handler.formData.get(this.name) || '').toString()
     };
   }
 }
 
-type NumericFieldAs = 'number' | 'range';
-type NumericFieldOptions = { as: NumericFieldAs };
-
-class NumericField<T extends FormShape> extends Field<
-  T,
-  'number' | 'bigint',
-  false
-> {
+class NumericMultipleChoiceField<
+  T extends FormShape,
+  CastType extends 'number' | 'bigint'
+> extends BaseField<T, CastType, true> {
   constructor(
     handler: ClientFormHandler<T>,
-    definition: FormFieldDefinition<T, 'number' | 'bigint', false>
+    definition: FormFieldDefinition<T, CastType, true>
   ) {
     super(handler, definition);
   }
-  attributes(options: NumericFieldOptions) {
-    const value = (this.handler.formData.get(this.name) as string) ?? '';
-    return { name: this.name, id: this.id, type: options.as, value };
-  }
-}
 
-class SingleChoiceField<T extends FormShape> extends Field<T, 'string', false> {
-  #options: readonly string[];
-  constructor(
-    handler: ClientFormHandler<T>,
-    definition: FormFieldDefinition<T, 'string', false>
-  ) {
-    super(handler, definition);
-    if (!definition.options) {
-      throw new Error(
-        `SingleChoiceField: field "${definition.name}" must use z.enum() as its type`
-      );
-    }
-    this.#options = definition.options;
-  }
-  get options(): readonly string[] {
-    return this.#options;
-  }
-  #value(): string {
-    return (this.handler.formData.get(this.name) as string) ?? '';
-  }
-  radioAttributes(value: string) {
+  checkboxAttributes(value: number | bigint): BaseFieldAttributes & {
+    value: string;
+    checked: boolean;
+    type: 'checkbox';
+  } {
     return {
       name: this.name,
       id: `${this.id}-${value}`,
-      type: 'radio' as const,
-      value,
-      checked: this.#value() === value
+      type: 'checkbox',
+      value: value.toString(),
+      checked: this.handler.formData
+        .getAll(this.name)
+        .includes(value.toString())
     };
   }
-  selectAttributes() {
+
+  selectAttributes(): BaseFieldAttributes & { multiple: true } {
     return {
       name: this.name,
-      id: this.id
+      id: this.id,
+      multiple: true
     };
   }
-  optionAttributes(value: string) {
+  optionAttributes(value: number | bigint): {
+    value: string;
+    selected: boolean;
+  } {
     return {
-      value,
-      selected: this.#value() === value
+      value: value.toString(),
+      selected: this.handler.formData
+        .getAll(this.name)
+        .includes(value.toString())
+    };
+  }
+  hiddenAttributes(value: number | bigint): BaseFieldAttributes & {
+    value: string;
+    type: 'hidden';
+  } {
+    return {
+      name: this.name,
+      id: `${this.id}-${value}`,
+      type: 'hidden',
+      value: value.toString()
     };
   }
 }
@@ -485,72 +598,105 @@ type StringFieldAs =
   | 'month'
   | 'week'
   | 'color'
-  | 'hidden'
-  | 'textarea';
+  | 'hidden';
 
-type StringFieldOptions = { as: StringFieldAs };
-
-class MultipleChoiceField<T extends FormShape> extends Field<
-  T,
-  'string',
-  true
-> {
-  #options: readonly string[];
-  constructor(
-    handler: ClientFormHandler<T>,
-    definition: FormFieldDefinition<T, 'string', true>
-  ) {
-    super(handler, definition);
-    if (!definition.options) {
-      throw new Error(
-        `MultipleChoiceField: field "${definition.name}" must use z.enum() as its array element type`
-      );
-    }
-    this.#options = definition.options;
-  }
-  get options(): readonly string[] {
-    return this.#options;
-  }
-  #selected(): Set<string> {
-    return new Set(this.handler.formData.getAll(this.name) as string[]);
-  }
-  checkboxAttributes(value: string) {
-    return {
-      name: this.name,
-      id: `${this.id}-${value}`,
-      type: 'checkbox' as const,
-      value,
-      checked: this.#selected().has(value)
-    };
-  }
-  selectAttributes() {
-    return {
-      name: this.name,
-      id: this.id,
-      multiple: true as const
-    };
-  }
-  optionAttributes(value: string) {
-    return {
-      value,
-      selected: this.#selected().has(value)
-    };
-  }
-}
-
-class StringField<T extends FormShape> extends Field<T, 'string', false> {
+class StringField<T extends FormShape> extends BaseField<T, 'string', false> {
   constructor(
     handler: ClientFormHandler<T>,
     definition: FormFieldDefinition<T, 'string', false>
   ) {
     super(handler, definition);
   }
-  attributes(options: StringFieldOptions) {
-    const value = (this.handler.formData.get(this.name) as string) ?? '';
-    const base = { name: this.name, id: this.id, value };
-    if (options.as === 'textarea') {
-      return base;
-    }
-    return { ...base, type: options.as };
+  textareaAttributes(): BaseFieldAttributes & { value: string } {
+    return {
+      name: this.name,
+      id: this.id,
+      value: (this.handler.formData.get(this.name) || '').toString()
+    };
+  }
+  selectAttributes(): BaseFieldAttributes {
+    return {
+      name: this.name,
+      id: this.id
+    };
+  }
+  optionAttributes(value: string): { value: string; selected: boolean } {
+    return {
+      value,
+      selected: this.handler.formData.get(this.name) === value
+    };
+  }
+  radioAttributes(
+    value: string
+  ): BaseFieldAttributes & { value: string; checked: boolean; type: 'radio' } {
+    return {
+      name: this.name,
+      id: `${this.id}-${value}`,
+      type: 'radio',
+      value,
+      checked: this.handler.formData.get(this.name) === value
+    };
+  }
+  inputAttributes<As extends StringFieldAs>(
+    as: As
+  ): BaseFieldAttributes & { value: string; type: As } {
+    return {
+      name: this.name,
+      id: this.id,
+      type: as,
+      value: (this.handler.formData.get(this.name) || '').toString()
+    };
+  }
+}
+
+class StringMultipleChoiceField<T extends FormShape> extends BaseField<
+  T,
+  'string',
+  true
+> {
+  constructor(
+    handler: ClientFormHandler<T>,
+    definition: FormFieldDefinition<T, 'string', true>
+  ) {
+    super(handler, definition);
+  }
+
+  checkboxAttributes(value: string): BaseFieldAttributes & {
+    value: string;
+    checked: boolean;
+    type: 'checkbox';
+  } {
+    return {
+      name: this.name,
+      id: `${this.id}-${value}`,
+      type: 'checkbox',
+      value,
+      checked: this.handler.formData.getAll(this.name).includes(value)
+    };
+  }
+
+  selectAttributes(): BaseFieldAttributes & { multiple: true } {
+    return {
+      name: this.name,
+      id: this.id,
+      multiple: true
+    };
+  }
+  optionAttributes(value: string): { value: string; selected: boolean } {
+    return {
+      value,
+      selected: this.handler.formData.getAll(this.name).includes(value)
+    };
+  }
+  hiddenAttributes(value: string): BaseFieldAttributes & {
+    value: string;
+    type: 'hidden';
+  } {
+    return {
+      name: this.name,
+      id: `${this.id}-${value}`,
+      type: 'hidden',
+      value
+    };
   }
 }

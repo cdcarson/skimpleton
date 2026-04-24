@@ -9,7 +9,7 @@
 
 <Route
   fullWidth
-  pageTitle="Boolean Checkbox"
+  pageTitle="Boolean Fields"
   breadcrumbs={[
     {
       href: resolve('/'),
@@ -29,7 +29,7 @@
     }
   ]}
 >
-  <div class="grid items-start lg:grid-cols-2 gap-16">
+  <div class="grid items-start gap-16 lg:grid-cols-2">
     <div>
       <BooleanForm actionData={form} savedData={data.saved} />
     </div>

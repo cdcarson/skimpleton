@@ -1,7 +1,6 @@
 <script lang="ts" generics="T extends FormShape">
   import { ClientFormHandler, type FormShape } from 'skimpleton';
   import HighlightedCode from './HighlightedCode.svelte';
-  import { uniqueId } from '$demo/utils.js';
   import z from 'zod';
 
   type Props = {
@@ -9,44 +8,45 @@
     savedData?: T;
   };
   let { handler, savedData }: Props = $props();
-  const detailsName = uniqueId();
   const form = new ClientFormHandler(z.object({}), { data: {} });
+  const replacer = (_key: string, value: unknown) =>
+    typeof value === 'bigint' ? value.toString() + 'n' : value;
 </script>
 
 <div class="accordian">
-  <details name={detailsName} open>
+  <details open>
     <summary>Data</summary>
     <div>
       <HighlightedCode
-        code={JSON.stringify(handler.data, null, 2)}
+        code={JSON.stringify(handler.data, replacer, 2)}
         language="JSON"
       />
     </div>
   </details>
-  <details name={detailsName}>
+  <details>
     <summary>Errors</summary>
     <div>
       <HighlightedCode
-        code={JSON.stringify(handler.errors, null, 2)}
+        code={JSON.stringify(handler.errors, replacer, 2)}
         language="JSON"
       />
     </div>
   </details>
-  <details name={detailsName}>
+  <details>
     <summary>Shown Errors</summary>
     <div>
       <HighlightedCode
-        code={JSON.stringify(handler.shownErrors, null, 2)}
+        code={JSON.stringify(handler.shownErrors, replacer, 2)}
         language="JSON"
       />
     </div>
   </details>
-  <details name={detailsName}>
+  <details>
     <summary>Success</summary>
     <div>
       {#if handler.success}
         <HighlightedCode
-          code={JSON.stringify(handler.success, null, 2)}
+          code={JSON.stringify(handler.success, replacer, 2)}
           language="JSON"
         />
       {:else}
@@ -54,7 +54,7 @@
       {/if}
     </div>
   </details>
-  <details name={detailsName}>
+  <details>
     <summary>Initial / Saved Data</summary>
     <div class="space-y-2">
       <p class="text-sm text-gray-500">
@@ -64,7 +64,7 @@
       </p>
       {#if savedData}
         <HighlightedCode
-          code={JSON.stringify(savedData, null, 2)}
+          code={JSON.stringify(savedData, replacer, 2)}
           language="json"
         />
         <div>

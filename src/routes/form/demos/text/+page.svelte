@@ -3,12 +3,13 @@
   import { resolve } from '$app/paths';
   import TextForm from './TextForm.svelte';
   import CodeTabs from '$demo/components/CodeTabs.svelte';
+
   let { data, form } = $props();
 </script>
 
 <Route
   fullWidth
-  pageTitle="Text Input"
+  pageTitle="Text Fields"
   breadcrumbs={[
     { href: resolve('/'), label: 'Home' },
     { href: resolve('/form'), label: 'Forms' },
@@ -17,7 +18,11 @@
   ]}
 >
   <div class="grid items-start gap-16 lg:grid-cols-2">
-    <div><TextForm actionData={form} savedData={data.saved} /></div>
-    <div><CodeTabs tabs={data.code} /></div>
+    <div>
+      <TextForm actionData={form} savedData={data.saved} />
+    </div>
+    <div>
+      <CodeTabs tabs={data.code} />
+    </div>
   </div>
 </Route>

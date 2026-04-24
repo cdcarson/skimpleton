@@ -1,4 +1,4 @@
-import { FlashMessage } from '../message/flash-message.js';
+import { FlashMessage } from '$lib/message/flash-message.js';
 import type {
   FormErrors,
   FormSuccess,
