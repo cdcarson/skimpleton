@@ -261,6 +261,22 @@ export class ClientFormHandler<
           delete updated[name];
           this.#externalErrors = updated;
         }
+      },
+      onfocusout: (event) => {
+        const name = (event.target as HTMLInputElement).name as FormName<T>;
+        const def = this.fieldDefinitions.get(name);
+        // don't do this for file inputs, since the picker blurs the input
+        if (def && def.castType !== 'file') {
+          this.touch(name);
+        }
+      },
+      onchange: (event) => {
+        const name = (event.target as HTMLInputElement).name as FormName<T>;
+        const def = this.fieldDefinitions.get(name);
+        // only do this for file inputs, see above
+        if (def && def.castType === 'file') {
+          this.touch(name);
+        }
       }
     };
   }

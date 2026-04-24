@@ -38,6 +38,34 @@
           {/if}
         </div>
       </div>
+      <div class="space-y-1">
+        <label class="block" for={form.field('iOwnACat').id}>
+          Do you own a cat?
+        </label>
+        <select
+          {...form.field('iOwnACat').selectAttributes()}
+          aria-describedby={form.field('iOwnACat').id + 'description'}
+          class="control"
+        >
+          <option {...form.field('iOwnACat').optionAttributes(false)}>
+            No, I do not
+          </option>
+          <option {...form.field('iOwnACat').optionAttributes(true)}>
+            Yes, I do
+          </option>
+        </select>
+        <div id={form.field('iOwnACat').id + 'description'}>
+          {#if form.shownErrors['iOwnACat']}
+            <div class="text-red-600">
+              {form.shownErrors['iOwnACat']}
+            </div>
+          {/if}
+          <div class="text-gray-600 text-sm">
+            This question has some server side validation. 
+          </div>
+        </div>
+
+      </div>
 
       <div class="space-y-1">
         <fieldset
@@ -71,7 +99,7 @@
           {/if}
         </div>
       </div>
-
+      <input {...form.field('demoHiddenBoolean').hiddenAttributes()}/>
       <div class="flex justify-end">
         <button class="button primary" type="submit">
           <span class="icon-[bi--save]"></span>
