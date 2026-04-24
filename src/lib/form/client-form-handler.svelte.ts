@@ -151,8 +151,7 @@ export class ClientFormHandler<
             }
 
             if (r.result.type === 'success' && data.success) {
-              // todo set data to formData
-              // this.data = data.data;
+              this.#formData = pojoToFormData(this.fieldDefinitions, data.data);
               this.#success = data.success;
 
               await invalidateAll();

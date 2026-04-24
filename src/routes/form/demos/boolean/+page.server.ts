@@ -60,8 +60,9 @@ export const actions: Actions = {
         iOwnACat: 'If you don’t like cats you shouldn’t be a cat owner.'
       });
     }
+    handler.data.demoHiddenBoolean = Math.random() < .5;
 
-    setDemoCookie(event, booleanFormSchema, {...handler.data, demoHiddenBoolean: Math.random() < .5});
+    setDemoCookie(event, booleanFormSchema, handler.data);
     return handler.succeed({
       message: `You ${handler.data.iLikeCats ? 'like' : 'don’t like'} cats.`,
       randomNum: Math.random()

@@ -12,7 +12,7 @@ import {
   cloneFormData,
   removeFiles,
   getFormErrors,
-  getFormFieldDefinitions,
+  getFormFieldDefinitions
 } from './utils.js';
 import {
   fail,
