@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ClientFormHandler } from 'skimpleton';
+  import { ClientFormHandler, type FormState } from 'skimpleton';
   import { booleanFormSchema, type BooleanFormFormData } from './schema.ts';
   import type { ActionData } from './$types.js';
   import DemoFormData from '$demo/components/DemoFormData.svelte';
@@ -12,7 +12,11 @@
   // svelte-ignore state_referenced_locally
   const form = new ClientFormHandler(
     booleanFormSchema,
-    actionData ? actionData : savedData ? { data: savedData } : { data: {} }
+    actionData
+      ? (actionData as Partial<FormState<BooleanFormFormData>>)
+      : savedData
+        ? { data: savedData }
+        : undefined
   );
 </script>
 
@@ -22,7 +26,7 @@
     <form {...form.attributes()} action="?/selectDemo" class="space-y-4 p-4">
       <div class="space-y-1">
         <div class="flex items-center gap-2">
-          <input {...form.field('iLikeCats').attributes()} />
+          <input {...form.field('iLikeCats').checkboxAttributes()} />
           <label for={form.field('iLikeCats').id}>I like cats</label>
         </div>
 
@@ -30,6 +34,39 @@
           {#if form.shownErrors['iLikeCats']}
             <div class="text-red-600">
               {form.shownErrors['iLikeCats']}
+            </div>
+          {/if}
+        </div>
+      </div>
+
+      <div class="space-y-1">
+        <fieldset
+          class="border border-gray-200 p-4"
+          aria-describedby={form.field('iAgreeToTheOnerousTerms').id +
+            '-description'}
+        >
+          <legend class="px-1">I agree to the onerous terms</legend>
+          <div class="flex gap-x-8">
+            <label class="flex items-center gap-2">
+              <input
+                {...form
+                  .field('iAgreeToTheOnerousTerms')
+                  .radioAttributes(false)}
+              />
+              No
+            </label>
+            <label class="flex items-center gap-2">
+              <input
+                {...form.field('iAgreeToTheOnerousTerms').radioAttributes(true)}
+              />
+              Yes
+            </label>
+          </div>
+        </fieldset>
+        <div id={form.field('iAgreeToTheOnerousTerms').id + '-description'}>
+          {#if form.shownErrors['iAgreeToTheOnerousTerms']}
+            <div class="text-red-600">
+              {form.shownErrors['iAgreeToTheOnerousTerms']}
             </div>
           {/if}
         </div>

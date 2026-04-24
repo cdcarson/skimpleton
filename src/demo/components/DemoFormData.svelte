@@ -1,7 +1,6 @@
 <script lang="ts" generics="T extends FormShape">
   import { ClientFormHandler, type FormShape } from 'skimpleton';
   import HighlightedCode from './HighlightedCode.svelte';
-  import { uniqueId } from '$demo/utils.js';
   import z from 'zod';
 
   type Props = {
@@ -9,12 +8,11 @@
     savedData?: T;
   };
   let { handler, savedData }: Props = $props();
-  const detailsName = uniqueId();
   const form = new ClientFormHandler(z.object({}), { data: {} });
 </script>
 
 <div class="accordian">
-  <details name={detailsName} open>
+  <details open>
     <summary>Data</summary>
     <div>
       <HighlightedCode
@@ -23,7 +21,7 @@
       />
     </div>
   </details>
-  <details name={detailsName}>
+  <details>
     <summary>Errors</summary>
     <div>
       <HighlightedCode
@@ -32,7 +30,7 @@
       />
     </div>
   </details>
-  <details name={detailsName}>
+  <details>
     <summary>Shown Errors</summary>
     <div>
       <HighlightedCode
@@ -41,7 +39,7 @@
       />
     </div>
   </details>
-  <details name={detailsName}>
+  <details>
     <summary>Success</summary>
     <div>
       {#if handler.success}
@@ -54,7 +52,7 @@
       {/if}
     </div>
   </details>
-  <details name={detailsName}>
+  <details>
     <summary>Initial / Saved Data</summary>
     <div class="space-y-2">
       <p class="text-sm text-gray-500">
