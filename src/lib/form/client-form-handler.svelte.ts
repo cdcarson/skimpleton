@@ -277,11 +277,8 @@ export class ClientFormHandler<
       [this.#enhanceAttachmentKey]: this.#enhanceAttachment,
       oninput: (event) => {
         this.#formData = new FormData(event.currentTarget);
-        const name = (event.target as HTMLInputElement).name as FormName<T>;
-        if (name && name in this.#externalErrors) {
-          const updated = { ...this.#externalErrors };
-          delete updated[name];
-          this.#externalErrors = updated;
+        if (Object.keys(this.#externalErrors).length > 0) {
+          this.#externalErrors = {};
         }
       },
       onfocusout: (event) => {
