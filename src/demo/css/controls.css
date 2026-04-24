@@ -97,7 +97,7 @@
   input.control,
   select.control,
   textarea.control {
-    @apply block min-h-[calc(2px+2.5em)] w-full appearance-none rounded-[.25em] border border-gray-300 bg-white! bg-clip-border px-[.75em] py-[.5em] text-base leading-normal text-gray-700 ring-blue-500/50 transition-all outline-none read-only:bg-gray-100 focus-visible:ring-4 disabled:pointer-events-none disabled:opacity-50 dark:border-gray-500 dark:bg-black! dark:text-gray-300 dark:read-only:bg-gray-900 [&.invalid]:border-red-500 [&.invalid]:ring-red-500/50 [&.lg]:text-lg [&.md]:text-base [&.sm]:text-sm [&.xl]:text-xl [&.xs]:text-xs;
+    @apply block min-h-[calc(2px+2.5em)] w-full appearance-none rounded-[.25em] border border-gray-300 bg-white! bg-clip-border px-[.75em] py-[.5em] text-base leading-normal text-gray-700 ring-blue-500/50 transition-all outline-none read-only:bg-gray-100 focus-visible:ring-4 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-red-500 aria-invalid:ring-red-500/50 dark:border-gray-500 dark:bg-black! dark:text-gray-300 dark:read-only:bg-gray-900 [&.lg]:text-lg [&.md]:text-base [&.sm]:text-sm [&.xl]:text-xl [&.xs]:text-xs;
   }
 
   /* Select dropdown caret styling (single select only) */
@@ -122,6 +122,6 @@
   }
 
   label.switch > input[type='checkbox'] {
-    @apply relative inline-block aspect-5/3 h-[calc(2px+1.5em)] appearance-none rounded-[.25em] border border-gray-300 bg-clip-border ring-blue-500/50 transition-all duration-500 outline-none after:absolute after:top-[.25em] after:left-[.25em] after:aspect-square after:h-[1em] after:rounded-[.25em] after:bg-gray-300 after:transition-all after:duration-500 after:content-[""] checked:bg-blue-500 checked:after:left-[calc(100%-1.25em)] checked:after:bg-white focus:ring-2 dark:border-gray-700 [&.invalid]:border-red-500 [&.invalid]:ring-red-500/50;
+    @apply relative inline-block aspect-5/3 h-[calc(2px+1.5em)] appearance-none rounded-full border border-gray-300 bg-clip-border ring-blue-500/50 transition-all duration-500 outline-none after:absolute after:top-[.25em] after:left-[.25em] after:aspect-square after:h-[1em] after:rounded-full after:bg-gray-300 after:transition-all after:duration-500 after:content-[""] checked:bg-blue-500 checked:after:left-[calc(100%-1.25em)] checked:after:bg-white focus:ring-2 aria-invalid:border-red-500 aria-invalid:ring-red-500/50 dark:border-gray-700;
   }
 }
