@@ -60,11 +60,10 @@
               {form.shownErrors['iOwnACat']}
             </div>
           {/if}
-          <div class="text-gray-600 text-sm">
-            This question has some server side validation. 
+          <div class="text-sm text-gray-600">
+            This question has some server side validation.
           </div>
         </div>
-
       </div>
 
       <div class="space-y-1">
@@ -99,7 +98,7 @@
           {/if}
         </div>
       </div>
-      <input {...form.field('demoHiddenBoolean').hiddenAttributes()}/>
+      <input {...form.field('demoHiddenBoolean').hiddenAttributes()} />
       <div class="flex justify-end">
         <button class="button primary" type="submit">
           <span class="icon-[bi--save]"></span>

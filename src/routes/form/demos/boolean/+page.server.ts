@@ -30,7 +30,7 @@ export const load = (event: RequestEvent) => {
       {
         label: '+page.svelte',
         language: 'html',
-        code:  pageSvelte
+        code: pageSvelte
       },
       {
         label: '+page.server.ts',
@@ -51,7 +51,7 @@ export const actions: Actions = {
       return handler.fail();
     }
     // arbitrary server error...
-    if (handler.data.iLikeCats && !handler.data.iOwnACat ) {
+    if (handler.data.iLikeCats && !handler.data.iOwnACat) {
       return handler.fail({
         iOwnACat: 'If you like cats you must own one.'
       });

@@ -223,7 +223,9 @@ export const formDataToPojo = <T extends FormShape>(
  *   string → '', number → 0, boolean → false, bigint → 0n,
  *   array → [], enum → first option, file → undefined.
  */
-export const getDefaultData = <T extends FormShape>(schema: FormSchema<T>): T => {
+export const getDefaultData = <T extends FormShape>(
+  schema: FormSchema<T>
+): T => {
   const getDefault = (s: z.core.SomeType): unknown => {
     // Let Zod resolve optional / nullable / default / catch wrappers naturally.
     const attempt = (s as z.ZodType).safeParse(undefined);

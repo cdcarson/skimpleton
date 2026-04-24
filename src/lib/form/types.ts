@@ -9,14 +9,12 @@ export type FormPrimitiveCastType =
   | 'file'
   | 'boolean';
 
-
 export type FormFlatObject = Record<string, FormPrimitive | FormPrimitive[]>;
 
 export type FormShape = Record<
   string,
   FormPrimitive | FormPrimitive[] | FormFlatObject
 >;
-
 
 export type FormName<T extends FormShape> = {
   [K in keyof T & string]: T[K] extends FormPrimitive[]
@@ -63,12 +61,11 @@ export type FormState<
   success?: FormSuccess<Success>;
 };
 
-
 export type ClientField<
   T extends FormShape,
   CastType extends FormPrimitiveCastType = FormPrimitiveCastType,
   IsArray extends boolean = boolean
-> = FormFieldDefinition<T,CastType,IsArray> & {
+> = FormFieldDefinition<T, CastType, IsArray> & {
   id: string;
-  shownError: string|undefined
-}
+  shownError: string | undefined;
+};

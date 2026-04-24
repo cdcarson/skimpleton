@@ -152,14 +152,22 @@ describe('getFormFieldDefinitions', () => {
       file: z.file()
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs.get('file')).toEqual({ name: 'file', castType: 'file', isArray: false });
+    expect(defs.get('file')).toEqual({
+      name: 'file',
+      castType: 'file',
+      isArray: false
+    });
   });
   it('is correct for z.array(z.file())', () => {
     const schema = z.object({
       files: z.array(z.file())
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs.get('files')).toEqual({ name: 'files', castType: 'file', isArray: true });
+    expect(defs.get('files')).toEqual({
+      name: 'files',
+      castType: 'file',
+      isArray: true
+    });
   });
 
   it('is correct tor a complex schema', () => {

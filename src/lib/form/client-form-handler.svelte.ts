@@ -64,7 +64,10 @@ export class ClientFormHandler<
       getFormFieldDefinitions(this.schema)
     );
     this.#formData = $state(
-      pojoToFormData(this.fieldDefinitions, initialState?.data || getDefaultData(this.#schema))
+      pojoToFormData(
+        this.fieldDefinitions,
+        initialState?.data || getDefaultData(this.#schema)
+      )
     );
 
     this.#fields = Object.fromEntries(
