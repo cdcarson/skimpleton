@@ -61,15 +61,10 @@ export const getFormFieldDefinitions = <T extends FormShape>(
       const unwrapped = unwrapZodType(fieldSchema);
       if (unwrapped instanceof z.ZodArray) {
         const element = unwrapZodType(unwrapped.element);
-        const options =
-          element instanceof z.ZodEnum
-            ? (element.options as readonly string[])
-            : undefined;
         currentDefs.push({
           name: newName,
           isArray: true,
-          castType: getScalarCastType(element),
-          ...(options && { options })
+          castType: getScalarCastType(element)
         });
         continue;
       }
@@ -81,15 +76,10 @@ export const getFormFieldDefinitions = <T extends FormShape>(
       }
 
       // leaf field
-      const leafOptions =
-        unwrapped instanceof z.ZodEnum
-          ? (unwrapped.options as readonly string[])
-          : undefined;
       currentDefs.push({
         name: newName,
         castType: getScalarCastType(unwrapped),
-        isArray: false,
-        ...(leafOptions && { options: leafOptions })
+        isArray: false
       });
     }
     return currentDefs;
