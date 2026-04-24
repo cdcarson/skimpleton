@@ -9,7 +9,7 @@
 
 <Route
   fullWidth
-  pageTitle="Boolean Checkbox"
+  pageTitle="Boolean Fields"
   breadcrumbs={[
     {
       href: resolve('/'),
