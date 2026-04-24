@@ -6,18 +6,6 @@
 
 <ul>
   <li>
-    <a href={resolve('/form/demos/text')}>Text Fields</a>
-  </li>
-  <li>
     <a href={resolve('/form/demos/boolean')}>Boolean Field</a>
-  </li>
-  <li>
-    <a href={resolve('/form/demos/checkbox-group')}>Checkboxes</a>
-  </li>
-  <li>
-    <a href={resolve('/form/demos/file')}>File Field</a>
-  </li>
-  <li>
-    <a href={resolve('/form/demos/kitchen-sink')}>Kitchen Sink</a>
   </li>
 </ul>

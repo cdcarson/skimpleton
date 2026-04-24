@@ -2,6 +2,10 @@ import z from 'zod';
 
 export type FormPrimitive = string | number | boolean | bigint | File;
 
+// boolean[] is not supported by the form API (booleans are encoded as
+// present/absent checkbox values, not array entries)
+export type FormArrayPrimitive = string | number | bigint | File;
+
 export type FormPrimitiveCastType =
   | 'string'
   | 'number'
@@ -9,11 +13,14 @@ export type FormPrimitiveCastType =
   | 'file'
   | 'boolean';
 
-export type FormFlatObject = Record<string, FormPrimitive | FormPrimitive[]>;
+export type FormFlatObject = Record<
+  string,
+  FormPrimitive | FormArrayPrimitive[]
+>;
 
 export type FormShape = Record<
   string,
-  FormPrimitive | FormPrimitive[] | FormFlatObject
+  FormPrimitive | FormArrayPrimitive[] | FormFlatObject
 >;
 
 export type FormName<T extends FormShape> = {
