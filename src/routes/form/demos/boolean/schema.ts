@@ -6,6 +6,6 @@ export const booleanFormSchema = z.object({
   iAgreeToTheOnerousTerms: z
     .boolean()
     .refine((val) => val, { error: 'You must agree to the onerous terms.' }),
-  demoHiddenBoolean: z.boolean()
+  demoHiddenBoolean: z.boolean().default(true)
 });
 export type BooleanFormFormData = z.infer<typeof booleanFormSchema>;

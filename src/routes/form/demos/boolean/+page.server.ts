@@ -60,7 +60,7 @@ export const actions: Actions = {
         iOwnACat: 'If you don’t like cats you shouldn’t be a cat owner.'
       });
     }
-    handler.data.demoHiddenBoolean = Math.random() < .5;
+    // handler.data.demoHiddenBoolean = Math.random() < .5;
 
     setDemoCookie(event, booleanFormSchema, handler.data);
     return handler.succeed({

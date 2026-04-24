@@ -13,6 +13,7 @@ import type {
 } from './types.ts';
 import {
   formDataToPojo,
+  getDefaultData,
   getFormErrors,
   getFormFieldDefinitions,
   pojoToFormData
@@ -63,7 +64,7 @@ export class ClientFormHandler<
       getFormFieldDefinitions(this.schema)
     );
     this.#formData = $state(
-      pojoToFormData(this.fieldDefinitions, initialState?.data || {})
+      pojoToFormData(this.fieldDefinitions, initialState?.data || getDefaultData(this.#schema))
     );
 
     this.#fields = Object.fromEntries(
