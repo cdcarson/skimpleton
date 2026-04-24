@@ -106,14 +106,12 @@ export class ClientFormHandler<
     this.#success = $state(initialState?.success ?? undefined);
 
     this.#novalidateKey = createAttachmentKey();
-    this.#novalidateAttachment = fromAction((node: HTMLFormElement) => {
+    this.#novalidateAttachment = (node: HTMLFormElement) => {
       node.setAttribute('novalidate', '');
-      return {
-        destroy() {
-          node.removeAttribute('novalidate');
-        }
+      return () => {
+        node.removeAttribute('novalidate');
       };
-    });
+    };
     this.#enhanceAttachmentKey = createAttachmentKey();
     this.#enhanceAttachment = fromAction(
       enhance as Action<
