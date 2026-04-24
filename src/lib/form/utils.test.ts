@@ -63,12 +63,12 @@ describe('getFormFieldDefinitions', () => {
       })
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs[0]).toEqual({
+    expect(defs.get('name.first')).toEqual({
       name: 'name.first',
       castType: 'string',
       isArray: false
     });
-    expect(defs[1]).toEqual({
+    expect(defs.get('name.last')).toEqual({
       name: 'name.last',
       castType: 'string',
       isArray: false
@@ -79,7 +79,7 @@ describe('getFormFieldDefinitions', () => {
       faves: z.array(z.string())
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs[0]).toEqual({
+    expect(defs.get('faves')).toEqual({
       name: 'faves',
       castType: 'string',
       isArray: true
@@ -90,7 +90,7 @@ describe('getFormFieldDefinitions', () => {
       faves: z.string()
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs[0]).toEqual({
+    expect(defs.get('faves')).toEqual({
       name: 'faves',
       castType: 'string',
       isArray: false
@@ -101,7 +101,7 @@ describe('getFormFieldDefinitions', () => {
       faves: z.enum(['red', 'green', 'blue'])
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs[0]).toEqual({
+    expect(defs.get('faves')).toEqual({
       name: 'faves',
       castType: 'string',
       isArray: false,
@@ -113,7 +113,7 @@ describe('getFormFieldDefinitions', () => {
       faves: z.array(z.enum(['red', 'green', 'blue']))
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs[0]).toEqual({
+    expect(defs.get('faves')).toEqual({
       name: 'faves',
       castType: 'string',
       isArray: true,
@@ -128,7 +128,7 @@ describe('getFormFieldDefinitions', () => {
       })
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs[0]).toEqual({
+    expect(defs.get('faves.colors')).toEqual({
       name: 'faves.colors',
       castType: 'string',
       isArray: true,
@@ -141,7 +141,7 @@ describe('getFormFieldDefinitions', () => {
       faves: z.literal('hop')
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs[0]).toEqual({
+    expect(defs.get('faves')).toEqual({
       name: 'faves',
       castType: 'string',
       isArray: false
@@ -152,14 +152,14 @@ describe('getFormFieldDefinitions', () => {
       file: z.file()
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs[0]).toEqual({ name: 'file', castType: 'file', isArray: false });
+    expect(defs.get('file')).toEqual({ name: 'file', castType: 'file', isArray: false });
   });
   it('is correct for z.array(z.file())', () => {
     const schema = z.object({
       files: z.array(z.file())
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs[0]).toEqual({ name: 'files', castType: 'file', isArray: true });
+    expect(defs.get('files')).toEqual({ name: 'files', castType: 'file', isArray: true });
   });
 
   it('is correct tor a complex schema', () => {
@@ -177,38 +177,38 @@ describe('getFormFieldDefinitions', () => {
       })
     });
     const defs = getFormFieldDefinitions(schema);
-    expect(defs).toContainEqual({
+    expect(defs.get('name.first')).toEqual({
       name: 'name.first',
       castType: 'string',
       isArray: false
     });
-    expect(defs).toContainEqual({
+    expect(defs.get('name.last')).toEqual({
       name: 'name.last',
       castType: 'string',
       isArray: false
     });
-    expect(defs).toContainEqual({
+    expect(defs.get('name.middle')).toEqual({
       name: 'name.middle',
       castType: 'string',
       isArray: false
     });
-    expect(defs).toContainEqual({
+    expect(defs.get('faves.number')).toEqual({
       name: 'faves.number',
       castType: 'number',
       isArray: true
     });
-    expect(defs).toContainEqual({
+    expect(defs.get('faves.color')).toEqual({
       name: 'faves.color',
       castType: 'string',
       isArray: true,
       options: ['red', 'green', 'blue']
     });
-    expect(defs).toContainEqual({
+    expect(defs.get('faves.pet')).toEqual({
       name: 'faves.pet',
       castType: 'string',
       isArray: true
     });
-    expect(defs).toContainEqual({
+    expect(defs.get('faves.files')).toEqual({
       name: 'faves.files',
       castType: 'file',
       isArray: true
