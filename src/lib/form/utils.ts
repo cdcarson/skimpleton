@@ -158,6 +158,13 @@ export const formDataToPojo = <T extends FormShape>(
   fieldDefinitions: Map<FormName<T>, FormFieldDefinition<T>>,
   formData: FormData
 ): T => {
+  // Browsers inject a placeholder entry for unselected file inputs when
+  // FormData is built from a form element: either an empty string (some
+  // implementations) or an empty File with name="" size=0 (Chrome). Filter
+  // these out so file fields behave like "no selection" → undefined / [].
+  const isRealFile = (v: FormDataEntryValue): v is File =>
+    v instanceof File && (v.name !== '' || v.size > 0);
+
   const castValue = (
     raw: FormDataEntryValue,
     castType: FormPrimitiveCastType
@@ -193,20 +200,31 @@ export const formDataToPojo = <T extends FormShape>(
   const pojo: Record<string, unknown> = {};
   for (const def of Array.from(fieldDefinitions.values())) {
     if (def.isArray) {
-      const values = formData.getAll(def.name);
-      setAtPath(
-        pojo,
-        def.name,
-        values.map((v) => castValue(v, def.castType))
-      );
+      if (def.castType === 'file') {
+        setAtPath(pojo, def.name, formData.getAll(def.name).filter(isRealFile));
+      } else {
+        const values = formData.getAll(def.name);
+        setAtPath(
+          pojo,
+          def.name,
+          values.map((v) => castValue(v, def.castType))
+        );
+      }
     } else {
-      const value = formData.get(def.name);
-      if (value === null) {
-        if (def.castType === 'boolean') {
-          setAtPath(pojo, def.name, false);
+      if (def.castType === 'file') {
+        const value = formData.get(def.name);
+        if (value !== null && isRealFile(value)) {
+          setAtPath(pojo, def.name, value);
         }
       } else {
-        setAtPath(pojo, def.name, castValue(value, def.castType));
+        const value = formData.get(def.name);
+        if (value === null) {
+          if (def.castType === 'boolean') {
+            setAtPath(pojo, def.name, false);
+          }
+        } else {
+          setAtPath(pojo, def.name, castValue(value, def.castType));
+        }
       }
     }
   }

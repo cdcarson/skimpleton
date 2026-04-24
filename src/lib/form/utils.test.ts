@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { unwrapZodType, getFormFieldDefinitions } from './utils.js';
+import {
+  unwrapZodType,
+  getFormFieldDefinitions,
+  formDataToPojo
+} from './utils.js';
 import z from 'zod';
 
 describe('unwrapZodType', () => {
@@ -170,7 +174,7 @@ describe('getFormFieldDefinitions', () => {
     });
   });
 
-  it('is correct tor a complex schema', () => {
+  it('is correct for a complex schema', () => {
     const schema = z.object({
       name: z.object({
         first: z.string(),
@@ -220,6 +224,88 @@ describe('getFormFieldDefinitions', () => {
       name: 'faves.files',
       castType: 'file',
       isArray: true
+    });
+  });
+});
+
+describe('formDataToPojo — file fields', () => {
+  const schema = z.object({
+    avatar: z.file(),
+    attachments: z.array(z.file()).default([])
+  });
+
+  const realFile = new File(['content'], 'photo.jpg', { type: 'image/jpeg' });
+  // Browsers inject an empty File for unselected file inputs when FormData is
+  // built from a form element (e.g. `new FormData(formEl)`).
+  const emptyFile = new File([], '');
+
+  describe('single file field (avatar)', () => {
+    it('returns the File when a real file is present', () => {
+      const fd = new FormData();
+      fd.set('avatar', realFile);
+      const result = formDataToPojo(getFormFieldDefinitions(schema), fd);
+      expect(result.avatar).toBe(realFile);
+    });
+
+    it('returns undefined when the field has no entry', () => {
+      const fd = new FormData();
+      const result = formDataToPojo(getFormFieldDefinitions(schema), fd);
+      expect(result.avatar).toBeUndefined();
+    });
+
+    it('returns undefined when the browser sends an empty string for an unselected input', () => {
+      const fd = new FormData();
+      fd.set('avatar', ''); // some browsers/implementations send empty string
+      const result = formDataToPojo(getFormFieldDefinitions(schema), fd);
+      expect(result.avatar).toBeUndefined();
+    });
+
+    it('returns undefined when the browser sends an empty File for an unselected input', () => {
+      const fd = new FormData();
+      fd.set('avatar', emptyFile); // Chrome sends File{name:"",size:0} for unselected inputs
+      const result = formDataToPojo(getFormFieldDefinitions(schema), fd);
+      expect(result.avatar).toBeUndefined();
+    });
+  });
+
+  describe('array file field (attachments)', () => {
+    it('returns [] when there are no entries', () => {
+      const fd = new FormData();
+      const result = formDataToPojo(getFormFieldDefinitions(schema), fd);
+      expect(result.attachments).toEqual([]);
+    });
+
+    it('returns [] when the browser sends an empty string for an unselected input', () => {
+      const fd = new FormData();
+      fd.append('attachments', '');
+      const result = formDataToPojo(getFormFieldDefinitions(schema), fd);
+      expect(result.attachments).toEqual([]);
+    });
+
+    it('returns [] when the browser sends an empty File for an unselected input', () => {
+      const fd = new FormData();
+      fd.append('attachments', emptyFile);
+      const result = formDataToPojo(getFormFieldDefinitions(schema), fd);
+      expect(result.attachments).toEqual([]);
+    });
+
+    it('returns the files when real files are present', () => {
+      const f1 = new File(['a'], 'a.jpg');
+      const f2 = new File(['b'], 'b.pdf');
+      const fd = new FormData();
+      fd.append('attachments', f1);
+      fd.append('attachments', f2);
+      const result = formDataToPojo(getFormFieldDefinitions(schema), fd);
+      expect(result.attachments).toEqual([f1, f2]);
+    });
+
+    it('filters out empty-File placeholders mixed with real files', () => {
+      const f1 = new File(['a'], 'a.jpg');
+      const fd = new FormData();
+      fd.append('attachments', emptyFile);
+      fd.append('attachments', f1);
+      const result = formDataToPojo(getFormFieldDefinitions(schema), fd);
+      expect(result.attachments).toEqual([f1]);
     });
   });
 });

@@ -9,6 +9,8 @@
   };
   let { handler, savedData }: Props = $props();
   const form = new ClientFormHandler(z.object({}), { data: {} });
+  const replacer = (_key: string, value: unknown) =>
+    typeof value === 'bigint' ? value.toString() + 'n' : value;
 </script>
 
 <div class="accordian">
@@ -16,7 +18,7 @@
     <summary>Data</summary>
     <div>
       <HighlightedCode
-        code={JSON.stringify(handler.data, null, 2)}
+        code={JSON.stringify(handler.data, replacer, 2)}
         language="JSON"
       />
     </div>
@@ -25,7 +27,7 @@
     <summary>Errors</summary>
     <div>
       <HighlightedCode
-        code={JSON.stringify(handler.errors, null, 2)}
+        code={JSON.stringify(handler.errors, replacer, 2)}
         language="JSON"
       />
     </div>
@@ -34,7 +36,7 @@
     <summary>Shown Errors</summary>
     <div>
       <HighlightedCode
-        code={JSON.stringify(handler.shownErrors, null, 2)}
+        code={JSON.stringify(handler.shownErrors, replacer, 2)}
         language="JSON"
       />
     </div>
@@ -44,7 +46,7 @@
     <div>
       {#if handler.success}
         <HighlightedCode
-          code={JSON.stringify(handler.success, null, 2)}
+          code={JSON.stringify(handler.success, replacer, 2)}
           language="JSON"
         />
       {:else}
@@ -62,7 +64,7 @@
       </p>
       {#if savedData}
         <HighlightedCode
-          code={JSON.stringify(savedData, null, 2)}
+          code={JSON.stringify(savedData, replacer, 2)}
           language="json"
         />
         <div>

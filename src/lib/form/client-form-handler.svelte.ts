@@ -155,7 +155,26 @@ export class ClientFormHandler<
             }
 
             if (r.result.type === 'success' && data.success) {
-              this.#formData = pojoToFormData(this.fieldDefinitions, data.data);
+              const newFormData = pojoToFormData(
+                this.fieldDefinitions,
+                data.data
+              );
+              // Server strips file fields via removeFiles — copy them back from
+              // the current formData so the DOM stays in sync with internal state.
+              for (const def of this.fieldDefinitions.values()) {
+                if (def.castType === 'file') {
+                  if (def.isArray) {
+                    this.#formData
+                      .getAll(def.name)
+                      .forEach((f) => newFormData.append(def.name, f));
+                  } else {
+                    const f = this.#formData.get(def.name);
+                    if (f) newFormData.set(def.name, f);
+                  }
+                }
+              }
+              this.#formData = newFormData;
+              this.untouchAll();
               this.#success = data.success;
 
               await invalidateAll();
