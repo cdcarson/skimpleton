@@ -26,5 +26,7 @@
       >
     </li>
     <li><a href={resolve('/form/demos/file')}>File Fields</a></li>
+    <li><a href={resolve('/form/demos/success')}>succeed()</a></li>
+    <li><a href={resolve('/form/demos/redirect')}>redirect()</a></li>
   </ul>
 </Route>
