@@ -2,9 +2,12 @@
   import Route from '$demo/components/Route.svelte';
   import { resolve } from '$app/paths';
   import EditRecordForm from './EditRecordForm.svelte';
+  import Markdown from '$demo/components/Markdown.svelte';
+  import documentation from './documentation.md?raw';
 
   let { data, form } = $props();
   let record = $derived(data.record);
+  let conflictingEmail = $derived(data.records.find(r => r.id !== record.id)?.email)
 </script>
 
 <Route
@@ -29,8 +32,10 @@
 >
   <div class="grid items-start gap-16 lg:grid-cols-2">
     <div>
-      <EditRecordForm record={data.record} actionData={form} />
+      <EditRecordForm record={data.record} actionData={form} {conflictingEmail} />
     </div>
-    <div>Documentation here</div>
+    <div>
+      <Markdown markdown={documentation} />
+    </div>
   </div>
 </Route>

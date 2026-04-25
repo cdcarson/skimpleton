@@ -5,7 +5,8 @@
   import Markdown from '$demo/components/Markdown.svelte';
   import documentation from './documentation.md?raw';
 
-  let { form } = $props();
+  let { form, data } = $props();
+  let conflictingEmail = $derived(data.records.at(0)?.email)
 </script>
 
 <Route
@@ -24,7 +25,7 @@
 >
   <div class="grid items-start gap-16 lg:grid-cols-2">
     <div>
-      <AddRecordForm actionData={form} />
+      <AddRecordForm actionData={form} {conflictingEmail} />
     </div>
     <div>
       <Markdown markdown={documentation} />

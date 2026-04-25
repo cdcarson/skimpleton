@@ -12,6 +12,7 @@ export const load = async (event: RequestEvent) => {
     error(404, 'Record not found!');
   }
   return {
+    records,
     record
   };
 };
@@ -31,6 +32,17 @@ export const actions: Actions = {
     if (!handler.valid) {
       return handler.fail();
     }
+    const emailConflict = records.find(
+      (r) =>
+        r.email.toLowerCase() === handler.data.email.toLowerCase() &&
+        r.id !== record.id
+    );
+    if (emailConflict) {
+      return handler.fail({
+        email: `The email ${handler.data.email} is already in use by another account.`
+      })
+    }
+
     const updated = [
       ...records.filter((r) => r.id !== record.id),
       { ...record, ...handler.data }

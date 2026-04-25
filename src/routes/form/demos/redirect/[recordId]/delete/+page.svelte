@@ -2,6 +2,8 @@
   import Route from '$demo/components/Route.svelte';
   import { resolve } from '$app/paths';
   import DeleteRecordForm from './DeleteRecordForm.svelte';
+  import Markdown from '$demo/components/Markdown.svelte';
+  import documentation from './documentation.md?raw';
 
   let { data } = $props();
   let record = $derived(data.record);
@@ -31,6 +33,8 @@
     <div>
       <DeleteRecordForm record={data.record} />
     </div>
-    <div>Documentation here</div>
+    <div>
+      <Markdown markdown={documentation} />
+    </div>
   </div>
 </Route>

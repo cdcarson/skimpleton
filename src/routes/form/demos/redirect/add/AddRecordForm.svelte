@@ -4,8 +4,9 @@
   import type { ActionData } from './$types.js';
   type Props = {
     actionData: ActionData;
+    conflictingEmail?: string
   };
-  let { actionData }: Props = $props();
+  let { actionData, conflictingEmail }: Props = $props();
   // svelte-ignore state_referenced_locally
   const form = new ClientFormHandler(
     contactFormSchema,
@@ -27,6 +28,12 @@
     <input {...form.field('email').inputAttributes('email')} class="control" />
     {#if form.shownErrors['email']}
       <div class="text-red-600">{form.shownErrors['email']}</div>
+    {/if}
+    {#if conflictingEmail}
+      <div class="text-xs text-gray-600">
+        Try entering <kbd>{conflictingEmail}</kbd> to trigger a server error. (That
+        email already exists.)
+      </div>
     {/if}
   </div>
 

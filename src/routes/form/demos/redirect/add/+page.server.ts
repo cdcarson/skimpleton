@@ -4,6 +4,12 @@ import { contactFormSchema } from '../schema.js';
 import { ServerFormHandler } from 'skimpleton';
 import { resolve } from '$app/paths';
 
+export const load = (event: RequestEvent) => {
+  return {
+    records: getRecords(event)
+  };
+};
+
 export const actions: Actions = {
   default: async (event: RequestEvent) => {
     const records = getRecords(event);
@@ -16,6 +22,16 @@ export const actions: Actions = {
     if (!handler.valid) {
       return handler.fail();
     }
+
+    const emailConflict = records.find(
+      (r) => r.email.toLowerCase() === handler.data.email.toLowerCase()
+    );
+    if (emailConflict) {
+      return handler.fail({
+        email: `The email ${handler.data.email} is already in use by another account.`
+      });
+    }
+
     const id = crypto.randomUUID();
     const updated = [...records, { ...handler.data, id }];
     updateRecords(event, updated);
