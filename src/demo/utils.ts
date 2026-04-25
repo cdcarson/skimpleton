@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import hljs, { type HighlightOptions } from 'highlight.js';
+import { Marked, Renderer } from 'marked';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -44,4 +45,15 @@ export const stripIgnored = (
     }
   }
   return curatedLines.join('\n');
+};
+
+export const markdownToHtml = (markdown: string): string => {
+  const renderer = new Renderer();
+  renderer.code = ({ text, lang }) => {
+    const language = lang && hljs.getLanguage(lang) ? lang : 'plaintext';
+    const highlighted = hljs.highlight(text, { language }).value;
+    return `<div class="not-prose"><pre class="border border-gray-200 text-xs"><code class="hljs language-${language}">${highlighted}</code></pre></div>`;
+  };
+  const marked = new Marked({ renderer });
+  return marked.parse(markdown).toString();
 };
