@@ -29,7 +29,7 @@
 >
   <div class="grid items-start gap-16 lg:grid-cols-2">
     <div>
-      <DeleteRecordForm record={data.record}/>
+      <DeleteRecordForm record={data.record} />
     </div>
     <div>Documentation here</div>
   </div>

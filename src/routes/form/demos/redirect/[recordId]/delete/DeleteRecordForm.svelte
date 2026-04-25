@@ -10,7 +10,7 @@
 </script>
 
 <form {...form.attributes()} class="space-y-4 p-4">
-  <div class="space-y-1 border rounded-md border-red-500 p-4 text-red-700">
+  <div class="space-y-1 rounded-md border border-red-500 p-4 text-red-700">
     <p>
       Are you sure you want to delete the record for
       <strong>{record.name}</strong>?

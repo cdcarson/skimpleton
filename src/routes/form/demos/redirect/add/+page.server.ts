@@ -4,12 +4,10 @@ import { contactFormSchema } from '../schema.js';
 import { ServerFormHandler } from 'skimpleton';
 import { resolve } from '$app/paths';
 
-
-
 export const actions: Actions = {
   default: async (event: RequestEvent) => {
     const records = getRecords(event);
-    
+
     const handler = new ServerFormHandler(
       contactFormSchema,
       await event.request.formData(),
@@ -18,11 +16,8 @@ export const actions: Actions = {
     if (!handler.valid) {
       return handler.fail();
     }
-    const id = crypto.randomUUID()
-    const updated = [
-      ...records,
-      {  ...handler.data, id }
-    ];
+    const id = crypto.randomUUID();
+    const updated = [...records, { ...handler.data, id }];
     updateRecords(event, updated);
     return handler.redirect(
       resolve('/form/demos/redirect/[recordId]', { recordId: id }),

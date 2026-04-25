@@ -52,7 +52,13 @@
               </li>
             </ul>
           </Dropdown>
-          <button class="button" popovertarget={dropdownId} style="anchor-name: --{dropdownId}-anchor" > Actions </button>
+          <button
+            class="button"
+            popovertarget={dropdownId}
+            style="anchor-name: --{dropdownId}-anchor"
+          >
+            Actions
+          </button>
         </div>
       </div>
       <dl>

@@ -30,9 +30,7 @@ const COOKIE_OPTS: SerializeOptions & { path: string } = {
   secure: true
 };
 
-export const getRecords = (
-  event: RequestEvent
-): ContactRecords => {
+export const getRecords = (event: RequestEvent): ContactRecords => {
   try {
     return contactRecordsSchema.parse(
       JSON.parse(event.cookies.get(COOKIE_NAME) || '')
@@ -41,8 +39,6 @@ export const getRecords = (
     return [...seedData];
   }
 };
-
-
 
 export const updateRecords = (
   event: RequestEvent,

@@ -23,21 +23,12 @@ export const actions: Actions = {
     if (!record) {
       error(404, 'Record not found!');
     }
-    const handler = new ServerFormHandler(
-      emptySchema,
-      new FormData(),
-      event
-    );
+    const handler = new ServerFormHandler(emptySchema, new FormData(), event);
     if (!handler.valid) {
       return handler.fail();
     }
-    const updated = [
-      ...records.filter((r) => r.id !== record.id)
-    ];
+    const updated = [...records.filter((r) => r.id !== record.id)];
     updateRecords(event, updated);
-    return handler.redirect(
-      resolve('/form/demos/redirect'),
-      'Record deleted!'
-    );
+    return handler.redirect(resolve('/form/demos/redirect'), 'Record deleted!');
   }
 };

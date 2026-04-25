@@ -1,13 +1,14 @@
 <script lang="ts">
   import Route from '$demo/components/Route.svelte';
   import { resolve } from '$app/paths';
-
+  import documentation from './documentation.md?raw';
+  import Markdown from '$demo/components/Markdown.svelte';
   let { data } = $props();
 </script>
 
 <Route
   fullWidth
-  pageTitle="handler.redirect()"
+  pageTitle="Redirect Forms"
   breadcrumbs={[
     { href: resolve('/'), label: 'Home' },
     { href: resolve('/form'), label: 'Forms' },
@@ -17,8 +18,10 @@
 >
   <div class="grid items-start gap-16 lg:grid-cols-2">
     <div class="prose dark:prose-invert">
-      <div class="flex justify-between items-end">
-        <p>{data.records.length} record{`${data.records.length === 1 ? '' : 's'}`}</p>
+      <div class="flex items-end justify-between">
+        <p>
+          {data.records.length} record{`${data.records.length === 1 ? '' : 's'}`}
+        </p>
         <div class="not-prose">
           <a class="button primary" href={resolve('/form/demos/redirect/add')}>
             <span class="icon-[bi--plus-lg]"></span>
@@ -29,7 +32,6 @@
       <table>
         <thead>
           <tr>
-            
             <th>Name</th>
             <th>Email</th>
             <th></th>
@@ -47,7 +49,7 @@
                   {record.name}
                 </a>
               </td>
-              
+
               <td>
                 {record.email}
               </td>
@@ -65,6 +67,8 @@
         </tbody>
       </table>
     </div>
-    <div>Docs here</div>
+    <div>
+      <Markdown markdown={documentation} />
+    </div>
   </div>
 </Route>

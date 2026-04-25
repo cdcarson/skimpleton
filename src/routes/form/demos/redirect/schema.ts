@@ -17,4 +17,3 @@ export const contactRecordsSchema = z.array(contactRecordSchema);
 export type ContactRecords = z.infer<typeof contactRecordsSchema>;
 
 export const emptySchema = z.object({});
-

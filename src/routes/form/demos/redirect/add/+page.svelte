@@ -3,7 +3,7 @@
   import { resolve } from '$app/paths';
   import AddRecordForm from './AddRecordForm.svelte';
 
-  let {  form } = $props();
+  let { form } = $props();
 </script>
 
 <Route
@@ -17,8 +17,7 @@
     {
       href: resolve('/form/demos/redirect/add'),
       label: 'Add'
-    },
-   
+    }
   ]}
 >
   <div class="grid items-start gap-16 lg:grid-cols-2">

@@ -10,7 +10,10 @@
     border: none;
     background: transparent;
     overflow: visible;
-    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
 
     display: none;
     opacity: 0;
