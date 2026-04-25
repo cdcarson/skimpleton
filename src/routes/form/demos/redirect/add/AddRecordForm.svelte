@@ -2,9 +2,10 @@
   import { ClientFormHandler } from 'skimpleton';
   import { contactFormSchema } from '../schema.js';
   import type { ActionData } from './$types.js';
+  import { resolve } from '$app/paths';
   type Props = {
     actionData: ActionData;
-    conflictingEmail?: string
+    conflictingEmail?: string;
   };
   let { actionData, conflictingEmail }: Props = $props();
   // svelte-ignore state_referenced_locally
@@ -37,9 +38,10 @@
     {/if}
   </div>
 
-  <div class="flex justify-end">
+  <div class="flex justify-between">
+    <a class="button" href={resolve('/form/demos/redirect')}>Cancel</a>
     <button class="button primary" type="submit">
-      <span class="icon-[bi--plus]"></span>
+      <span class="icon-[bi--plus-lg]"></span>
       Add
     </button>
   </div>

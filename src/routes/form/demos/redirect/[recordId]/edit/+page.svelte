@@ -7,12 +7,14 @@
 
   let { data, form } = $props();
   let record = $derived(data.record);
-  let conflictingEmail = $derived(data.records.find(r => r.id !== record.id)?.email)
+  let conflictingEmail = $derived(
+    data.records.find((r) => r.id !== record.id)?.email
+  );
 </script>
 
 <Route
   fullWidth
-  pageTitle={`Record: ${record.name}`}
+  pageTitle={`Edit Record: ${record.name}`}
   breadcrumbs={[
     { href: resolve('/'), label: 'Home' },
     { href: resolve('/form'), label: 'Forms' },
@@ -32,7 +34,11 @@
 >
   <div class="grid items-start gap-16 lg:grid-cols-2">
     <div>
-      <EditRecordForm record={data.record} actionData={form} {conflictingEmail} />
+      <EditRecordForm
+        record={data.record}
+        actionData={form}
+        {conflictingEmail}
+      />
     </div>
     <div>
       <Markdown markdown={documentation} />

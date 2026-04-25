@@ -45,7 +45,10 @@ export const actions: Actions = {
 
 ```svelte
 <script lang="ts">
-  const form = new ClientFormHandler(contactFormSchema, actionData ?? undefined);
+  const form = new ClientFormHandler(
+    contactFormSchema,
+    actionData ?? undefined
+  );
 </script>
 
 <form {...form.attributes()}>

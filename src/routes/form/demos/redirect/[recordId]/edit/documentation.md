@@ -25,7 +25,9 @@ export const actions: Actions = {
     }
 
     const emailConflict = records.find(
-      (r) => r.email.toLowerCase() === handler.data.email.toLowerCase() && r.id !== record.id
+      (r) =>
+        r.email.toLowerCase() === handler.data.email.toLowerCase() &&
+        r.id !== record.id
     );
     if (emailConflict) {
       return handler.fail({
@@ -33,7 +35,10 @@ export const actions: Actions = {
       });
     }
 
-    updateRecords(event, [...records.filter((r) => r.id !== record.id), { ...record, ...handler.data }]);
+    updateRecords(event, [
+      ...records.filter((r) => r.id !== record.id),
+      { ...record, ...handler.data }
+    ]);
     return handler.redirect(
       resolve('/form/demos/redirect/[recordId]', { recordId: record.id }),
       'Record updated!'
@@ -51,7 +56,9 @@ The key difference from the add form is the initial data: when there's no `actio
   let { actionData, record } = $props();
   const form = new ClientFormHandler(
     contactFormSchema,
-    actionData ? actionData : { data: { name: record.name, email: record.email } }
+    actionData
+      ? actionData
+      : { data: { name: record.name, email: record.email } }
   );
 </script>
 ```

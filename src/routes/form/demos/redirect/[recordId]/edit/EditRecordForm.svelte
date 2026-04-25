@@ -2,6 +2,7 @@
   import { ClientFormHandler } from 'skimpleton';
   import { contactFormSchema, type ContactRecord } from '../../schema.js';
   import type { ActionData } from './$types.js';
+  import { resolve } from '$app/paths';
   type Props = {
     record: ContactRecord;
     actionData: ActionData;
@@ -40,7 +41,12 @@
     {/if}
   </div>
 
-  <div class="flex justify-end">
+  <div class="flex justify-between">
+    <a
+      class="button"
+      href={resolve('/form/demos/redirect/[recordId]', { recordId: record.id })}
+      >Cancel</a
+    >
     <button class="button primary" type="submit">
       <span class="icon-[bi--save]"></span>
       Save

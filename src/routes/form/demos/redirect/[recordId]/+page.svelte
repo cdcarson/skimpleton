@@ -57,7 +57,7 @@
             popovertarget={dropdownId}
             style="anchor-name: --{dropdownId}-anchor"
           >
-            Actions
+            Actions <span class="icon-[bi--caret-down-fill]"></span>
           </button>
         </div>
       </div>

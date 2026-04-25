@@ -40,7 +40,7 @@ export const actions: Actions = {
     if (emailConflict) {
       return handler.fail({
         email: `The email ${handler.data.email} is already in use by another account.`
-      })
+      });
     }
 
     const updated = [

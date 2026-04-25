@@ -15,7 +15,10 @@ const handler = new ServerFormHandler(emptySchema, new FormData(), event);
 if (!handler.valid) {
   return handler.fail();
 }
-updateRecords(event, records.filter((r) => r.id !== record.id));
+updateRecords(
+  event,
+  records.filter((r) => r.id !== record.id)
+);
 return handler.redirect(resolve('/form/demos/redirect'), 'Record deleted!');
 ```
 

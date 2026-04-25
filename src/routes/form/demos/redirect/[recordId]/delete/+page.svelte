@@ -11,7 +11,7 @@
 
 <Route
   fullWidth
-  pageTitle={`Record: ${record.name}`}
+  pageTitle={`Delete Record: ${record.name}`}
   breadcrumbs={[
     { href: resolve('/'), label: 'Home' },
     { href: resolve('/form'), label: 'Forms' },
@@ -22,10 +22,10 @@
       label: record.name
     },
     {
-      href: resolve('/form/demos/redirect/[recordId]/edit', {
+      href: resolve('/form/demos/redirect/[recordId]/delete', {
         recordId: record.id
       }),
-      label: 'Edit'
+      label: 'Delete'
     }
   ]}
 >

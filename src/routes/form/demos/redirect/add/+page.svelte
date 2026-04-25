@@ -6,7 +6,7 @@
   import documentation from './documentation.md?raw';
 
   let { form, data } = $props();
-  let conflictingEmail = $derived(data.records.at(0)?.email)
+  let conflictingEmail = $derived(data.records.at(0)?.email);
 </script>
 
 <Route
