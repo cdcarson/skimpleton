@@ -106,14 +106,12 @@ export class ClientFormHandler<
     this.#success = $state(initialState?.success ?? undefined);
 
     this.#novalidateKey = createAttachmentKey();
-    this.#novalidateAttachment = fromAction((node: HTMLFormElement) => {
+    this.#novalidateAttachment = (node: HTMLFormElement) => {
       node.setAttribute('novalidate', '');
-      return {
-        destroy() {
-          node.removeAttribute('novalidate');
-        }
+      return () => {
+        node.removeAttribute('novalidate');
       };
-    });
+    };
     this.#enhanceAttachmentKey = createAttachmentKey();
     this.#enhanceAttachment = fromAction(
       enhance as Action<
@@ -386,6 +384,7 @@ type FieldFor<T extends FormShape, N extends FormName<T>> =
 type BaseFieldAttributes = {
   name: string;
   id: string;
+  [key: symbol]: Attachment<HTMLElement> | false | undefined | null;
 };
 
 class BaseField<
@@ -395,12 +394,22 @@ class BaseField<
 > {
   #handler: ClientFormHandler<T>;
   #fieldDefinition: FormFieldDefinition<T, CastType, IsArray>;
+  #invalidAttachmentKey: symbol;
+  #invalidAttachment: Attachment<HTMLElement>;
   constructor(
     handler: ClientFormHandler<T>,
     fieldDefinition: FormFieldDefinition<T, CastType, IsArray>
   ) {
     this.#handler = handler;
     this.#fieldDefinition = fieldDefinition;
+    this.#invalidAttachmentKey = createAttachmentKey();
+    this.#invalidAttachment = (node: HTMLElement) => {
+      if (this.handler.shownErrors[this.name]) {
+        node.setAttribute('aria-invalid', 'true');
+      } else {
+        node.removeAttribute('aria-invalid');
+      }
+    };
   }
   get handler(): ClientFormHandler<T> {
     return this.#handler;
@@ -413,6 +422,14 @@ class BaseField<
   }
   get id(): string {
     return [this.handler.formId, ...this.name.split('.')].join('-');
+  }
+
+  baseAttributes(): BaseFieldAttributes {
+    return {
+      name: this.name,
+      id: this.id,
+      [this.#invalidAttachmentKey]: this.#invalidAttachment
+    };
   }
 }
 
@@ -429,8 +446,7 @@ class BooleanField<T extends FormShape> extends BaseField<T, 'boolean', false> {
     checked: boolean;
   } {
     return {
-      name: this.name,
-      id: this.id,
+      ...this.baseAttributes(),
       type: 'checkbox',
       checked: this.handler.formData.get(this.name) === 'on'
     };
@@ -442,7 +458,7 @@ class BooleanField<T extends FormShape> extends BaseField<T, 'boolean', false> {
     checked: boolean;
   } {
     return {
-      name: this.name,
+      ...this.baseAttributes(),
       id: `${this.id}-${value ? 'on' : 'off'}`,
       type: 'radio',
       value: value ? 'on' : '',
@@ -451,10 +467,7 @@ class BooleanField<T extends FormShape> extends BaseField<T, 'boolean', false> {
   }
 
   selectAttributes(): BaseFieldAttributes {
-    return {
-      name: this.name,
-      id: this.id
-    };
+    return this.baseAttributes();
   }
 
   optionAttributes(value: boolean): { value: 'on' | ''; selected: boolean } {
@@ -469,8 +482,7 @@ class BooleanField<T extends FormShape> extends BaseField<T, 'boolean', false> {
     value: 'on' | '';
   } {
     return {
-      name: this.name,
-      id: this.id,
+      ...this.baseAttributes(),
       type: 'hidden',
       value: this.handler.formData.get(this.name) === 'on' ? 'on' : ''
     };
@@ -493,8 +505,7 @@ class FileField<T extends FormShape, IsArray extends boolean> extends BaseField<
     multiple: IsArray;
   } {
     return {
-      name: this.name,
-      id: this.id,
+      ...this.baseAttributes(),
       type: 'file',
       multiple: this.fieldDefinition.isArray
     };
@@ -516,8 +527,7 @@ class NumericField<
     as: As
   ): BaseFieldAttributes & { value: string; type: As } {
     return {
-      name: this.name,
-      id: this.id,
+      ...this.baseAttributes(),
       type: as,
       value: (this.handler.formData.get(this.name) || '').toString()
     };
@@ -541,7 +551,7 @@ class NumericMultipleChoiceField<
     type: 'checkbox';
   } {
     return {
-      name: this.name,
+      ...this.baseAttributes(),
       id: `${this.id}-${value}`,
       type: 'checkbox',
       value: value.toString(),
@@ -553,8 +563,7 @@ class NumericMultipleChoiceField<
 
   selectAttributes(): BaseFieldAttributes & { multiple: true } {
     return {
-      name: this.name,
-      id: this.id,
+      ...this.baseAttributes(),
       multiple: true
     };
   }
@@ -574,7 +583,7 @@ class NumericMultipleChoiceField<
     type: 'hidden';
   } {
     return {
-      name: this.name,
+      ...this.baseAttributes(),
       id: `${this.id}-${value}`,
       type: 'hidden',
       value: value.toString()
@@ -606,16 +615,12 @@ class StringField<T extends FormShape> extends BaseField<T, 'string', false> {
   }
   textareaAttributes(): BaseFieldAttributes & { value: string } {
     return {
-      name: this.name,
-      id: this.id,
+      ...this.baseAttributes(),
       value: (this.handler.formData.get(this.name) || '').toString()
     };
   }
   selectAttributes(): BaseFieldAttributes {
-    return {
-      name: this.name,
-      id: this.id
-    };
+    return this.baseAttributes();
   }
   optionAttributes(value: string): { value: string; selected: boolean } {
     return {
@@ -627,7 +632,7 @@ class StringField<T extends FormShape> extends BaseField<T, 'string', false> {
     value: string
   ): BaseFieldAttributes & { value: string; checked: boolean; type: 'radio' } {
     return {
-      name: this.name,
+      ...this.baseAttributes(),
       id: `${this.id}-${value}`,
       type: 'radio',
       value,
@@ -638,8 +643,7 @@ class StringField<T extends FormShape> extends BaseField<T, 'string', false> {
     as: As
   ): BaseFieldAttributes & { value: string; type: As } {
     return {
-      name: this.name,
-      id: this.id,
+      ...this.baseAttributes(),
       type: as,
       value: (this.handler.formData.get(this.name) || '').toString()
     };
@@ -664,7 +668,7 @@ class StringMultipleChoiceField<T extends FormShape> extends BaseField<
     type: 'checkbox';
   } {
     return {
-      name: this.name,
+      ...this.baseAttributes(),
       id: `${this.id}-${value}`,
       type: 'checkbox',
       value,
@@ -674,8 +678,7 @@ class StringMultipleChoiceField<T extends FormShape> extends BaseField<
 
   selectAttributes(): BaseFieldAttributes & { multiple: true } {
     return {
-      name: this.name,
-      id: this.id,
+      ...this.baseAttributes(),
       multiple: true
     };
   }
@@ -690,7 +693,7 @@ class StringMultipleChoiceField<T extends FormShape> extends BaseField<
     type: 'hidden';
   } {
     return {
-      name: this.name,
+      ...this.baseAttributes(),
       id: `${this.id}-${value}`,
       type: 'hidden',
       value
