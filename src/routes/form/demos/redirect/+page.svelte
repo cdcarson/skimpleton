@@ -3,6 +3,8 @@
   import { resolve } from '$app/paths';
   import documentation from './documentation.md?raw';
   import Markdown from '$demo/components/Markdown.svelte';
+  import Dropdown from '$demo/components/Dropdown.svelte';
+  import { uniqueId } from '$demo/utils.js';
   let { data } = $props();
 </script>
 
@@ -39,6 +41,7 @@
         </thead>
         <tbody>
           {#each data.records as record (record.id)}
+            {@const dropdownId = uniqueId()}
             <tr>
               <td>
                 <a
@@ -54,13 +57,46 @@
                 {record.email}
               </td>
               <td>
-                <a
-                  href={resolve('/form/demos/redirect/[recordId]/edit', {
-                    recordId: record.id
-                  })}
-                >
-                  Edit
-                </a>
+                <div class="not-prose">
+                  <Dropdown id={dropdownId}>
+                    <ul class="vertical-menu">
+                      <li>
+                        <a
+                          href={resolve(
+                            '/form/demos/redirect/[recordId]/edit',
+                            {
+                              recordId: record.id
+                            }
+                          )}
+                        >
+                          <span class="icon-[bi--pencil]"></span>
+                          Edit Record
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href={resolve(
+                            '/form/demos/redirect/[recordId]/delete',
+                            {
+                              recordId: record.id
+                            }
+                          )}
+                        >
+                          <span class="icon-[bi--trash]"></span>
+                          Delete Record
+                        </a>
+                      </li>
+                    </ul>
+                  </Dropdown>
+                  <button
+                    class="button ghost"
+                    popovertarget={dropdownId}
+                    style="anchor-name: --{dropdownId}-anchor"
+                    aria-label="Actions"
+                  >
+                    <span class="icon-[bi--three-dots-vertical]"></span>
+                  </button>
+                </div>
               </td>
             </tr>
           {/each}

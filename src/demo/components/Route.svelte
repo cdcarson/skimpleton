@@ -33,14 +33,14 @@
   </div>
 </nav>
 <main id="main">
-  <header class="bg-gray-100 pt-3 pb-4">
+  <header class="bg-gray-100 pt-4 pb-8">
     <div class={cn(['mx-auto px-4', !fullWidth && 'lg:container'])}>
       <h1 class="text-4xl leading-tight font-light">
         {pageTitle}
       </h1>
     </div>
   </header>
-  <div class={cn(['mx-auto px-4 py-4', !fullWidth && 'lg:container'])}>
+  <div class={cn(['mx-auto px-4 py-8', !fullWidth && 'lg:container'])}>
     {@render children()}
   </div>
 </main>

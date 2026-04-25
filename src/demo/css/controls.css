@@ -4,8 +4,8 @@
   .button {
     --border-light: var(--color-gray-300);
     --border-dark: var(--color-gray-700);
-    --bg-light: var(--color-gray-100);
-    --bg-dark: var(--color-gray-900);
+    --bg-light: var(--color-white);
+    --bg-dark: var(--color-black);
     --text-light: var(--color-gray-700);
     --text-dark: var(--color-gray-300);
 
@@ -70,6 +70,52 @@
     --border-active-dark: transparent;
     --bg-active-light: var(--color-red-800);
     --bg-active-dark: var(--color-red-800);
+    --text-active-light: var(--color-white);
+    --text-active-dark: var(--color-white);
+  }
+
+  .button.black {
+    --border-light: transparent;
+    --border-dark: transparent;
+    --bg-light: var(--color-gray-700);
+    --bg-dark: var(--color-gray-700);
+    --text-light: var(--color-white);
+    --text-dark: var(--color-white);
+
+    --border-hover-light: transparent;
+    --border-hover-dark: transparent;
+    --bg-hover-light: var(--color-gray-900);
+    --bg-hover-dark: var(--color-gray-900);
+    --text-hover-light: var(--color-white);
+    --text-hover-dark: var(--color-white);
+
+    --border-active-light: transparent;
+    --border-active-dark: transparent;
+    --bg-active-light: var(--color-black);
+    --bg-active-dark: var(--color-black);
+    --text-active-light: var(--color-white);
+    --text-active-dark: var(--color-white);
+  }
+
+  .button.ghost {
+    --border-light: transparent;
+    --border-dark: transparent;
+    --bg-light: var(--color-white);
+    --bg-dark: var(--color-black);
+    --text-light: var(--color-gray-600);
+    --text-dark: var(--color-gray-400);
+
+    --border-hover-light: transparent;
+    --border-hover-dark: transparent;
+    --bg-hover-light: var(--color-gray-100);
+    --bg-hover-dark: var(--color-gray-900);
+    --text-hover-light: var(--color-gray-600);
+    --text-hover-dark: var(--color-gray-400);
+
+    --border-active-light: transparent;
+    --border-active-dark: transparent;
+    --bg-active-light: var(--color-black);
+    --bg-active-dark: var(--color-black);
     --text-active-light: var(--color-white);
     --text-active-dark: var(--color-white);
   }
