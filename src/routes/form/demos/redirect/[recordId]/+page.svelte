@@ -1,6 +1,8 @@
 <script lang="ts">
   import Route from '$demo/components/Route.svelte';
   import { resolve } from '$app/paths';
+  import Markdown from '$demo/components/Markdown.svelte';
+  import documentation from './documentation.md?raw';
 
   let { data } = $props();
   let record = $derived(data.record);
@@ -53,6 +55,8 @@
         </a>
       </div>
     </div>
-    <div>Docs here</div>
+    <div>
+      <Markdown markdown={documentation} />
+    </div>
   </div>
 </Route>
