@@ -26,5 +26,6 @@
       >
     </li>
     <li><a href={resolve('/form/demos/file')}>File Fields</a></li>
+    <li><a href={resolve('/form/demos/redirect')}>Redirect Forms</a></li>
   </ul>
 </Route>

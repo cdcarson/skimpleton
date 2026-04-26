@@ -1,0 +1,75 @@
+@layer components {
+  .dropdown-popover {
+    --dropdown-duration: 150ms;
+    --dropdown-easing: ease-out;
+    --dropdown-offset: 0.25rem;
+
+    position: fixed;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    overflow: visible;
+    position-try-fallbacks:
+      flip-block,
+      flip-inline,
+      flip-block flip-inline;
+
+    display: none;
+    opacity: 0;
+    transition:
+      opacity var(--dropdown-duration) var(--dropdown-easing),
+      display var(--dropdown-duration) allow-discrete,
+      overlay var(--dropdown-duration) allow-discrete;
+  }
+
+  .dropdown-popover:popover-open {
+    display: block;
+    opacity: 1;
+
+    @starting-style {
+      opacity: 0;
+    }
+  }
+
+  /* Placement classes using CSS anchor positioning */
+  .dropdown-popover.bottom-start {
+    position-area: bottom span-right;
+    margin-top: var(--dropdown-offset);
+  }
+  .dropdown-popover.bottom-end {
+    position-area: bottom span-left;
+    margin-top: var(--dropdown-offset);
+  }
+  .dropdown-popover.bottom {
+    position-area: bottom center;
+    margin-top: var(--dropdown-offset);
+  }
+  .dropdown-popover.top-start {
+    position-area: top span-right;
+    margin-bottom: var(--dropdown-offset);
+  }
+  .dropdown-popover.top-end {
+    position-area: top span-left;
+    margin-bottom: var(--dropdown-offset);
+  }
+  .dropdown-popover.top {
+    position-area: top center;
+    margin-bottom: var(--dropdown-offset);
+  }
+
+  /* Card styling for the inner content */
+  .dropdown-popover > .dropdown-content {
+    @apply w-max max-w-[calc(100dvw-2rem)] min-w-40 rounded border border-gray-200 bg-white shadow-2xl shadow-black/10 dark:border-gray-800 dark:bg-black dark:shadow-white/25;
+
+    max-height: 70dvh;
+    overflow-y: auto;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .dropdown-popover {
+      --dropdown-duration: 0s;
+    }
+  }
+}

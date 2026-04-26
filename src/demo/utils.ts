@@ -52,7 +52,7 @@ export const markdownToHtml = (markdown: string): string => {
   renderer.code = ({ text, lang }) => {
     const language = lang && hljs.getLanguage(lang) ? lang : 'plaintext';
     const highlighted = hljs.highlight(text, { language }).value;
-    return `<div class="not-prose"><pre class="border border-gray-200 text-xs"><code class="hljs language-${language}">${highlighted}</code></pre></div>`;
+    return `<div class="not-prose mb-4"><pre class="border border-gray-200 text-xs"><code class="hljs language-${language}">${highlighted}</code></pre></div>`;
   };
   const marked = new Marked({ renderer });
   return marked.parse(markdown).toString();
